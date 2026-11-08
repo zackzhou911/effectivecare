@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Portal | Effective Care</title>
+<link rel="icon" type="image/png" href="favicon.png"/>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.46.2/dist/umd/supabase.js"></script>
+<style>
+:root {
+  --navy:#0A1628; --dark:#0D2B55; --blue:#2563EB; --blue2:#1D4ED8;
+  --lb:#EFF6FF; --white:#FFFFFF; --off:#F9FAFB;
+  --muted:#6B7280; --border:#E5E7EB; --ink:#111827;
+  --green:#16a34a; --red:#dc2626; --amber:#d97706;
+  --sidebar:200px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--off);color:var(--ink);min-height:100vh;line-height:1.7;}
+
+/* ── DISPLAY PREFERENCES ── */
+body.ec-highcontrast { --ink:#000000 !important; --muted:#2a2a2a !important; --border:#555555 !important; --mid:#1a1a1a !important; }
+body.ec-highcontrast * { color: inherit; }
+body.ec-highcontrast .card { border-color: #555 !important; }
+body.ec-highcontrast input, body.ec-highcontrast textarea, body.ec-highcontrast select { border-color: #555 !important; color: #000 !important; }
+body.ec-highcontrast .sidebar { border-right-color: #555 !important; }
+body.ec-highcontrast .nav-item { color: #000 !important; }
+body.ec-highcontrast .nav-item:hover, body.ec-highcontrast .nav-item.active { background: rgba(0,0,0,0.15) !important; }
+body.ec-largetext { font-size: 20px !important; }
+body.ec-largetext p, body.ec-largetext li, body.ec-largetext td, body.ec-largetext div { font-size: 1rem !important; }
+body.ec-largetext label { font-size: 0.85rem !important; }
+body.ec-largetext .card-title { font-size: 1rem !important; }
+body.ec-largetext .view-title { font-size: clamp(1.9rem,3vw,2.5rem) !important; }
+body.ec-largetext input, body.ec-largetext textarea, body.ec-largetext select { font-size: 1.05rem !important; }
+body.ec-largetext .sidebar-nav a { font-size: 1rem !important; }
+body.ec-darkmode { --off:#1a1a2e; --white:#1e2233; --ink:#dde1ed; --muted:#9ba3af; --border:#2e3347; --navy:#0f2040; }
+body.ec-darkmode .card { background: #222c3c !important; border-color: #2e3347 !important; }
+body.ec-darkmode .sidebar { background: #131929 !important; }
+body.ec-darkmode input, body.ec-darkmode textarea, body.ec-darkmode select { background: #1e2233 !important; color: #dde1ed !important; border-color: #2e3347 !important; }
+
+/* ── AUTH ── */
+.auth-wrap{display:flex;align-items:stretch;background:var(--dark);}
+.auth-card{background:var(--white);border-radius:5px;padding:1.75rem 2.25rem 1.5rem;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,0.32);}
+.auth-wordmark{font-family:Georgia,serif;font-size:1.35rem;font-weight:bold;color:var(--navy);letter-spacing:-0.02em;}
+.auth-sub{font-size:0.78rem;color:var(--muted);margin-bottom:1.25rem;margin-top:0.25rem;letter-spacing:0.01em;}
+.auth-tabs{display:flex;border:1.5px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:1.25rem;}
+.auth-tab{flex:1;padding:0.6rem;background:transparent;border:none;font-size:0.85rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.auth-tab.active{background:var(--dark);color:var(--white);}
+.role-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;}
+.role-card{border:1.5px solid var(--border);border-radius:5px;padding:1rem 0.875rem;cursor:pointer;transition:all 0.15s;text-align:left;}
+.role-card:hover{border-color:var(--blue);}
+.role-card.sel{border-color:var(--blue);background:var(--lblue);}
+.role-card-name{font-size:0.875rem;font-weight:600;color:var(--navy);}
+.role-card-desc{font-size:0.72rem;color:var(--muted);margin-top:0.2rem;line-height:1.4;}
+.f-field{margin-bottom:0.75rem;}
+.f-field label{display:block;font-size:0.72rem;font-weight:700;color:var(--mid);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.1em;}
+.f-field input,.f-field select{width:100%;padding:0.72rem 0.875rem;border:1.5px solid var(--border);border-radius:5px;font-size:0.9rem;font-family:inherit;color:var(--ink);background:var(--white);transition:border-color 0.15s;}
+.f-field input:focus,.f-field select:focus{outline:none;border-color:var(--blue);}
+/* reuse style.css btn-primary for auth submit — override width only */
+.auth-submit{width:100%;padding:0.8rem 1.875rem;background:var(--blue);color:#fff;border:none;border-radius:5px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;}
+.auth-submit:hover{background:var(--blue2);}
+.auth-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.auth-msg{padding:0.75rem 1rem;border-radius:5px;font-size:0.83rem;margin-bottom:1rem;display:none;}
+.auth-msg.err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;display:block;}
+.auth-msg.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d;display:block;}
+.auth-toggle{text-align:center;font-size:0.8rem;color:var(--muted);margin-top:1.25rem;}
+.auth-toggle a{color:var(--blue);font-weight:600;cursor:pointer;text-decoration:none;}
+
+/* ── PORTAL SHELL ── */
+.portal{display:none;flex-direction:column;min-height:100vh;}
+.portal.active{display:flex;}
+/* topbar: dark, matching site nav family */
+.topbar{background:var(--dark);height:52px;display:flex;align-items:center;justify-content:flex-end;padding:0 2rem;flex-shrink:0;gap:1.25rem;border-bottom:1px solid rgba(255,255,255,0.07);}
+.topbar-name{font-size:0.8rem;color:rgba(255,255,255,0.55);}
+.topbar-name b{color:rgba(255,255,255,0.9);}
+.btn-signout{padding:0.3rem 0.875rem;border-radius:4px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.75);transition:all 0.15s;}
+.btn-signout:hover{background:rgba(255,255,255,0.16);color:#fff;}
+
+.portal-body{display:flex;flex:1;overflow:hidden;}
+
+/* ── SIDEBAR — dark, matching main site panels ── */
+.sidebar{width:var(--sidebar);background:var(--navy);border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0;}
+.sidebar-role-label{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;color:var(--sky);padding:1.5rem 1.25rem 0.6rem;}
+.sidebar-nav{display:block!important;background:transparent!important;height:auto!important;position:static!important;box-shadow:none!important;padding:0.25rem 0!important;}
+.sidebar-nav a{display:block!important;padding:0.65rem 1.25rem;font-size:0.875rem;font-weight:500;color:rgba(255,255,255,0.6);text-decoration:none;border-left:3px solid transparent;transition:all 0.13s;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:auto!important;}
+.sidebar-nav a:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);}
+.sidebar-nav a.active{background:rgba(255,255,255,0.08);color:#fff;border-left-color:var(--sky);font-weight:600;}
+.sidebar-bottom{margin-top:auto;padding:1.25rem;border-top:1px solid rgba(255,255,255,0.08);}
+.user-chip{display:flex;align-items:center;gap:0.625rem;}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;letter-spacing:0.03em;}
+.user-label{font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.85);}
+.user-role-tag{font-size:0.68rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;overflow-y:auto;padding:2.5rem 2.25rem;background:var(--off);}
+.view{display:none;}
+.view.active{display:block;}
+.view-title{font-family:Georgia,serif;font-size:clamp(1.5rem,2.5vw,2rem);color:var(--ink);margin-bottom:0.3rem;letter-spacing:-0.02em;line-height:1.2;}
+.view-sub{font-size:0.9rem;color:var(--muted);margin-bottom:2rem;line-height:1.6;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:1.5rem;margin-bottom:1.25rem;}
+.card-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:1rem;}
+
+/* ── BADGE ── */
+.badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:100px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
+.badge-pending{background:#fef3c7;color:#92400e;}
+.badge-review{background:#eff6ff;color:#1d4ed8;}
+.badge-approved{background:#dcfce7;color:#15803d;}
+.badge-matched{background:#f3e8ff;color:#7e22ce;}
+.badge-rejected{background:#fee2e2;color:#991b1b;}
+.badge-placed{background:#d1fae5;color:#065f46;}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse;font-size:0.875rem;}
+.data-table th{text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:0 0.75rem 0.75rem;border-bottom:1px solid var(--border);}
+.data-table td{padding:0.875rem 0.75rem;border-bottom:1px solid var(--border);color:var(--ink);}
+.data-table tr:last-child td{border-bottom:none;}
+
+/* ── FORM ── */
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.pf-field{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;}
+.pf-field label{font-size:0.72rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.1em;}
+.pf-field input,.pf-field select,.pf-field textarea{padding:0.7rem 0.875rem;border:1.5px solid var(--border);border-radius:5px;font-size:0.9rem;font-family:inherit;color:var(--ink);background:var(--white);transition:border-color 0.15s;}
+.pf-field input:focus,.pf-field select:focus,.pf-field textarea:focus{outline:none;border-color:var(--blue);}
+.pf-field textarea{resize:vertical;min-height:90px;}
+.btn-blue{display:inline-block;background:var(--blue);color:#fff;border:none;padding:0.8rem 1.875rem;border-radius:5px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;}
+.btn-blue:hover{background:var(--blue2);}
+.btn-blue:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-outline{display:inline-block;background:transparent;color:var(--blue);border:2px solid var(--blue);padding:0.8rem 1.875rem;border-radius:5px;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;}
+.btn-outline:hover{background:var(--lblue);}
+.form-msg{padding:0.75rem 1rem;border-radius:5px;font-size:0.83rem;margin-bottom:1rem;display:none;}
+.form-msg.err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;display:block;}
+.form-msg.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#14532d;display:block;}
+
+/* ── STEP WIZARD ── */
+.step-bar{display:flex;gap:0;margin-bottom:2.25rem;border-bottom:1px solid var(--border);padding-bottom:1.25rem;}
+.step-item{display:flex;align-items:center;gap:0.5rem;flex:1;}
+.step-num{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:var(--muted);background:var(--white);flex-shrink:0;transition:all 0.2s;}
+.step-num.done{background:var(--green);border-color:var(--green);color:var(--white);}
+.step-num.active{background:var(--dark);border-color:var(--dark);color:var(--white);}
+.step-label{font-size:0.78rem;font-weight:600;color:var(--muted);}
+.step-label.active{color:var(--ink);}
+.step-divider{height:1px;flex:1;background:var(--border);margin:0 0.5rem;align-self:center;}
+.step-panel{display:none;}
+.step-panel.active{display:block;}
+.step-nav{display:flex;gap:0.75rem;margin-top:1.5rem;}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:3.5rem 1rem;}
+.empty-title{font-family:Georgia,serif;font-size:1.1rem;color:var(--ink);margin-bottom:0.5rem;}
+.empty-desc{font-size:0.875rem;color:var(--muted);margin-bottom:1.75rem;line-height:1.7;max-width:380px;margin-left:auto;margin-right:auto;}
+
+/* ── STAT TILES ── */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.75rem;}
+.stat-tile{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:1.25rem 1.5rem;}
+.stat-n{font-family:Georgia,serif;font-size:1.9rem;color:var(--ink);letter-spacing:-0.02em;line-height:1;}
+.stat-l{font-size:0.78rem;color:var(--muted);margin-top:0.35rem;line-height:1.4;}
+
+/* ── SYC ── */
+.syc-card{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:1.5rem;margin-bottom:1rem;}
+.syc-meta{font-size:0.72rem;color:var(--muted);margin-bottom:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;}
+.syc-msg{font-size:0.9rem;color:var(--mid);line-height:1.7;font-style:italic;}
+.syc-no-consent{padding:2rem;text-align:center;background:var(--off);border-radius:5px;border:1px dashed var(--border);}
+.syc-no-consent p{font-size:0.875rem;color:var(--muted);line-height:1.7;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .sidebar{display:none;}
+  .pf-row{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .main{padding:1.5rem 1rem;}
+}
+@media(min-width:860px){
+  #authImgPanel { display:block !important; }
+}
+@media(max-width:859px){
+  #authWrap { flex-direction:column; }
+  #authWrap > div:last-child { flex: 1; width:100%; padding: 1.5rem 1rem; }
+  .auth-card { box-shadow: none !important; max-width:100% !important; padding:1.25rem 1rem !important; }
+}
+</style>
+<script defer data-domain="effectivecare.ca" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="index.html" class="nav-brand">
+    <img src="logo-white.png" alt="Effective Care"/>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="">Home</a>
+    <div class="nav-dropdown">
+      <a href="about.html" class="">About</a>
+      <div class="nav-drop-menu">
+        <a href="about.html">About Us</a>
+        <a href="for-donors.html">For Donors</a>
+        <a href="for-recipients.html">For Recipients</a>
+        <a href="who-we-serve.html">Who We Serve</a>
+      </div>
+    </div>
+    <a href="how-it-works.html" class="">How It Works</a>
+    <a href="testimonials.html" class="">Testimonials</a>
+    <a href="faq.html" class="">FAQ</a>
+    <a href="contact.html" class="">Contact</a>
+    <a href="sponsors.html" class="">Sponsors</a>
+    <a href="portal.html" class="active">Portal</a>
+    <a href="donate.html" class="nav-donate">Donate a Vehicle</a>
+  </div>
+  <div class="nav-right-mobile">
+    <a href="donate.html" class="nav-donate-mobile">Donate</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="how-it-works.html">How It Works</a>
+  <a href="testimonials.html">Testimonials</a>
+  <a href="faq.html">FAQ</a>
+  <a href="contact.html">Contact</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="portal.html">Portal</a>
+  <a href="donate.html" class="mobile-donate">Donate a Vehicle</a>
+</div>
+
+<!-- ── AUTH SCREEN ── -->
+<div class="auth-wrap" id="authWrap" style="position:fixed;top:64px;left:0;right:0;bottom:0;display:flex;align-items:stretch;overflow:hidden;z-index:10;">
+  <!-- Left image panel -->
+  <div class="auth-img-panel" style="flex:1;display:none;position:relative;overflow:hidden;" id="authImgPanel">
+    <img src="photo-commute.jpg" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center;"/>
+    <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,22,40,0.72) 0%,rgba(13,43,85,0.45) 100%);"></div>
+    <div style="position:absolute;bottom:3rem;left:3rem;right:3rem;color:#fff;">
+      <div style="font-family:Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1.25;margin-bottom:0.75rem;letter-spacing:-0.02em;">Moving BC families forward.</div>
+      <div style="font-size:0.875rem;color:rgba(255,255,255,0.72);line-height:1.7;">Donate your vehicle or apply for one — every journey starts here.</div>
+    </div>
+  </div>
+  <!-- Right card panel -->
+  <div style="display:flex;align-items:center;justify-content:center;padding:1.5rem 2rem;flex:0 0 520px;background:var(--off);overflow-y:auto;">
+  <div class="auth-card" style="width:100%;max-width:440px;">
+    <div class="auth-wordmark">Effective Care</div>
+    <div class="auth-sub">Donor and recipient portal</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-in" onclick="switchTab('in')">Sign In</button>
+      <button class="auth-tab" id="tab-up" onclick="switchTab('up')">Create Account</button>
+    </div>
+
+    <div id="auth-msg" class="auth-msg"></div>
+
+    <!-- SIGN IN -->
+    <div id="pane-in">
+      <div class="f-field">
+        <label>Email</label>
+        <input type="email" id="si-email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="f-field">
+        <label>Password</label>
+        <input type="password" id="si-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()"/>
+      </div>
+      <button class="auth-submit" id="si-btn" onclick="signIn()">Sign In</button>
+      <div class="auth-toggle"><a onclick="showForgotPassword()">Forgot password?</a> &nbsp;·&nbsp; No account? <a onclick="switchTab('up')">Create one</a></div>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="pane-up" style="display:none;">
+      <div class="f-field">
+        <label>Full name</label>
+        <input type="text" id="su-name" placeholder="Jane Smith" autocomplete="name"/>
+      </div>
+      <div class="f-field">
+        <label>Email</label>
+        <input type="email" id="su-email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="f-field">
+        <label>Password</label>
+        <input type="password" id="su-pass" placeholder="At least 8 characters" autocomplete="new-password"/>
+      </div>
+      <div class="f-field">
+        <label>I am registering as a</label>
+      </div>
+      <div class="role-row">
+        <div class="role-card sel" id="rc-donor" onclick="pickRole('donor')">
+          <div class="role-card-name">Donor</div>
+          <div class="role-card-desc">I have a vehicle to donate</div>
+        </div>
+        <div class="role-card" id="rc-recipient" onclick="pickRole('recipient')">
+          <div class="role-card-name">Recipient</div>
+          <div class="role-card-desc">I am applying for a vehicle</div>
+        </div>
+      </div>
+      <button class="auth-submit" id="su-btn" onclick="signUp()">Create Account</button>
+      <div class="auth-toggle">Already have an account? <a onclick="switchTab('in')">Sign in</a></div>
+    </div>
+    <!-- FORGOT PASSWORD -->
+    <div id="pane-forgot" style="display:none;">
+      <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;">Enter your email and we will send you a one-time code to reset your password.</p>
+      <div class="f-field">
+        <label>Email</label>
+        <input type="email" id="fp-email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <button class="auth-submit" id="fp-btn" onclick="sendOTP()">Send Reset Code</button>
+      <div class="auth-toggle"><a onclick="showSignIn()">Back to sign in</a></div>
+    </div>
+
+    <!-- OTP VERIFY -->
+    <div id="pane-otp" style="display:none;">
+      <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;">Check your email for a 6-digit code and enter it below.</p>
+      <div class="f-field">
+        <label>One-time code</label>
+        <input type="text" id="otp-code" placeholder="123456" maxlength="6" autocomplete="one-time-code" inputmode="numeric" onkeydown="if(event.key==='Enter')verifyOTP()"/>
+      </div>
+      <button class="auth-submit" id="otp-btn" onclick="verifyOTP()">Verify Code</button>
+      <div class="auth-toggle"><a onclick="showForgotPassword()">Resend code</a> &nbsp;·&nbsp; <a onclick="showSignIn()">Back to sign in</a></div>
+    </div>
+
+    <!-- NEW PASSWORD -->
+    <div id="pane-newpass" style="display:none;">
+      <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;">Create a new password for your account.</p>
+      <div class="f-field">
+        <label>New password</label>
+        <input type="password" id="np-pass" placeholder="At least 8 characters" autocomplete="new-password"/>
+      </div>
+      <div class="f-field">
+        <label>Confirm password</label>
+        <input type="password" id="np-pass2" placeholder="Repeat password" autocomplete="new-password" onkeydown="if(event.key==='Enter')resetPassword()"/>
+      </div>
+      <button class="auth-submit" id="np-btn" onclick="resetPassword()">Set New Password</button>
+    </div>
+
+  </div>
+  </div><!-- /right card panel -->
+</div>
+
+<!-- ── PORTAL SHELL ── -->
+<div class="portal" id="portalShell">
+  <div class="topbar">
+    <span class="topbar-name" id="topbarName"></span>
+    <button class="btn-signout" onclick="signOut()">Sign out</button>
+  </div>
+  <div class="portal-body">
+    <div class="sidebar" id="portalSidebar">
+      <div class="sidebar-role-label" id="sidebarRoleLabel"></div>
+      <nav class="sidebar-nav" id="sidebarNav"></nav>
+      <div class="sidebar-bottom">
+        <div class="user-chip">
+          <div class="user-avatar" id="userAvatar"></div>
+          <div>
+            <div class="user-label" id="userLabel"></div>
+            <div class="user-role-tag" id="userRoleTag"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="main" id="portalMain"></div>
+  </div>
+</div>
+
+<script>
+var SUPABASE_URL = 'https://jzyfiagualwvmznnnvoy.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_RO133yoq9HSXyx1igzsRVQ_ot4ahVAs';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+var currentUser = null;
+var currentRole = 'donor';
+var _signUpRole = 'donor';
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+var _portalEntered = false;
+
+sb.auth.getSession().then(function(r){
+  if (r.data && r.data.session) {
+    currentUser = r.data.session.user;
+    _portalEntered = true;
+    enterPortal();
+  }
+});
+
+sb.auth.onAuthStateChange(function(event, session){
+  if (event === 'SIGNED_IN' && session) {
+    currentUser = session.user;
+    // Only enter portal on first sign-in — ignore background token refreshes
+    // which also fire SIGNED_IN and would wipe the form
+    if (!_portalEntered) {
+      _portalEntered = true;
+      enterPortal();
+    }
+  }
+  if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    _portalEntered = false;
+    document.getElementById('portalShell').classList.remove('active');
+    document.getElementById('authWrap').style.display = 'flex';
+    document.getElementById('mainNav').style.display = '';
+    var mm = document.getElementById('mobileMenu'); if (mm) mm.style.display = '';
+  }
+});
+
+// ── DRAFT PERSISTENCE: save immediately on tab-switch / page leave ────────
+document.addEventListener('visibilitychange', function() {
+  // Fires when user alt-tabs, minimizes, or switches browser tabs
+  if (document.visibilityState === 'hidden') {
+    saveDraft();
+  }
+});
+window.addEventListener('beforeunload', function() {
+  // Fires when user closes tab or navigates away
+  saveDraft();
+});
+
+// ── AUTH UI ───────────────────────────────────────────────────────────────
+function switchTab(t) {
+  document.getElementById('pane-in').style.display  = t === 'in' ? 'block' : 'none';
+  document.getElementById('pane-up').style.display  = t === 'up' ? 'block' : 'none';
+  document.getElementById('tab-in').classList.toggle('active', t === 'in');
+  document.getElementById('tab-up').classList.toggle('active', t === 'up');
+  clearMsg();
+}
+
+function pickRole(r) {
+  _signUpRole = r;
+  document.getElementById('rc-donor').classList.toggle('sel', r === 'donor');
+  document.getElementById('rc-recipient').classList.toggle('sel', r === 'recipient');
+}
+
+function showMsg(msg, type) {
+  var el = document.getElementById('auth-msg');
+  el.textContent = msg;
+  el.className = 'auth-msg ' + type;
+}
+function clearMsg() {
+  var el = document.getElementById('auth-msg');
+  el.className = 'auth-msg';
+}
+
+async function signIn() {
+  var email = document.getElementById('si-email').value.trim();
+  var pass  = document.getElementById('si-pass').value;
+  if (!email || !pass) { showMsg('Please enter your email and password.', 'err'); return; }
+  var btn = document.getElementById('si-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  var r = await sb.auth.signInWithPassword({ email: email, password: pass });
+  if (r.error) { showMsg(r.error.message, 'err'); btn.disabled = false; btn.textContent = 'Sign In'; }
+}
+
+async function signUp() {
+  var name  = document.getElementById('su-name').value.trim();
+  var email = document.getElementById('su-email').value.trim();
+  var pass  = document.getElementById('su-pass').value;
+  if (!name || !email || !pass) { showMsg('Please fill in all fields.', 'err'); return; }
+  if (pass.length < 8) { showMsg('Password must be at least 8 characters.', 'err'); return; }
+  var btn = document.getElementById('su-btn');
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  var r = await sb.auth.signUp({
+    email: email, password: pass,
+    options: { data: { full_name: name, role: _signUpRole } }
+  });
+  if (r.error) {
+    showMsg(r.error.message, 'err');
+    btn.disabled = false; btn.textContent = 'Create Account';
+  } else if (r.data && r.data.user && !r.data.session) {
+    showMsg('Account created! Please check your email to confirm your address, then sign in.', 'ok');
+    btn.disabled = false; btn.textContent = 'Create Account';
+  } else {
+    showMsg('Account created. You are now signed in.', 'ok');
+  }
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+}
+
+// ── PORTAL ENTRY ──────────────────────────────────────────────────────────
+function enterPortal() {
+  var meta = currentUser.user_metadata || {};
+  var name = meta.full_name || currentUser.email.split('@')[0];
+  var ADMIN_EMAILS = ['zackzhou911@gmail.com', 'info@effectivecare.ca'];
+  if (ADMIN_EMAILS.indexOf(currentUser.email) !== -1) { currentRole = 'admin'; }
+  else { currentRole = meta.role || 'donor'; }
+
+  // Admin: stay in portal as donor view — admin panel is at admin.html directly
+  if (currentRole === 'admin') { currentRole = 'donor'; }
+
+  document.getElementById('authWrap').style.display = 'none';
+  document.getElementById('portalShell').classList.add('active');
+  document.getElementById('mainNav').style.display = 'none';
+  var mm = document.getElementById('mobileMenu'); if (mm) mm.style.display = 'none';
+
+  // Topbar
+  document.getElementById('topbarName').innerHTML = 'Signed in as <b>' + esc(name) + '</b>';
+
+  // Sidebar bottom
+  var initials = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userLabel').textContent = name;
+  document.getElementById('userRoleTag').textContent = currentRole === 'donor' ? 'Donor' : 'Recipient';
+
+  if (currentRole === 'donor') buildDonor();
+  else buildRecipient();
+}
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){ a.classList.remove('active'); });
+  var v = document.getElementById('view-' + id);
+  var n = document.getElementById('nav-' + id);
+  if (v) v.classList.add('active');
+  if (n) n.classList.add('active');
+  if (id === 'd-account' || id === 'r-account') { setTimeout(initAccountSettings, 0); }
+}
+
+function buildNav(items, roleLabel) {
+  document.getElementById('sidebarRoleLabel').textContent = roleLabel;
+  document.getElementById('sidebarNav').innerHTML = items.map(function(it){
+    return '<a id="nav-' + it.id + '" onclick="showView(\'' + it.id + '\')">' + it.label + '</a>';
+  }).join('');
+}
+
+// ── DONOR PORTAL ──────────────────────────────────────────────────────────
+function buildDonor() {
+  buildNav([
+    {id:'d-dashboard', label:'Dashboard'},
+    {id:'d-donate',    label:'Donate a Vehicle'},
+    {id:'d-cash',      label:'Donation'},
+    {id:'d-labour',    label:'Volunteer Labour'},
+    {id:'d-history',   label:'My Donations'},
+    {id:'d-seeyourcar',label:'See Your Car'},
+    {id:'d-account',   label:'Account Settings'},
+  ], 'Donor');
+
+  document.getElementById('portalMain').innerHTML = `
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-d-dashboard">
+      <div class="view-title">Dashboard</div>
+      <div class="view-sub">Your donation at a glance.</div>
+      <div class="stat-row" id="d-stats">
+        <div class="stat-tile"><div class="stat-n" id="ds-total">—</div><div class="stat-l">Vehicles donated</div></div>
+        <div class="stat-tile"><div class="stat-n" id="ds-pending">—</div><div class="stat-l">Awaiting review</div></div>
+        <div class="stat-tile"><div class="stat-n" id="ds-placed">—</div><div class="stat-l">Placed with families</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent donations</div>
+        <div id="d-dash-list"></div>
+      </div>
+      <div class="card" style="background:var(--off);border-color:var(--border);">
+        <div class="card-title" style="color:var(--muted);">Other ways to give</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.25rem;">
+          <button class="btn-outline" onclick="showView('d-cash')" style="font-size:0.82rem;padding:0.65rem 1rem;color:var(--ink);border-color:var(--border);background:#fff;"> Make a Donation</button>
+          <button class="btn-outline" onclick="showView('d-labour')" style="font-size:0.82rem;padding:0.65rem 1rem;color:var(--ink);border-color:var(--border);background:#fff;"> Volunteer Labour</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DONATE VEHICLE FORM -->
+    <div class="view" id="view-d-donate">
+      <div class="view-title">Donate a Vehicle</div>
+      <div class="view-sub">Fill out the details below. We will contact you within 2 business days to arrange drop-off.</div>
+      <div class="card">
+        <div id="donate-msg" class="form-msg"></div>
+        <div class="pf-row">
+          <div class="pf-field"><label>Make</label><input type="text" id="d-make" placeholder="Toyota"/></div>
+          <div class="pf-field"><label>Model</label><input type="text" id="d-model" placeholder="Corolla"/></div>
+        </div>
+        <div class="pf-row">
+          <div class="pf-field"><label>Year</label><input type="number" id="d-year" placeholder="2012" min="1980" max="2026"/></div>
+          <div class="pf-field"><label>Mileage (km)</label><input type="number" id="d-mileage" placeholder="120000"/></div>
+        </div>
+        <div class="pf-field"><label>Overall condition</label>
+          <select id="d-condition">
+            <option value="">Select...</option>
+            <option value="good">Running — good condition</option>
+            <option value="minor">Running — needs minor work</option>
+            <option value="significant">Running — needs significant work</option>
+            <option value="not-running">Not running</option>
+          </select>
+        </div>
+        <div class="pf-field"><label>Body damage</label>
+          <select id="d-body">
+            <option value="none">None</option>
+            <option value="minor-scratches">Minor scratches / scuffs</option>
+            <option value="dents">Dents</option>
+            <option value="rust">Rust</option>
+            <option value="major">Major body damage</option>
+          </select>
+        </div>
+        <div class="pf-field"><label>Mechanical issues</label>
+          <select id="d-mechanical">
+            <option value="none">None known</option>
+            <option value="brakes">Brakes</option>
+            <option value="engine">Engine</option>
+            <option value="transmission">Transmission</option>
+            <option value="suspension">Suspension / steering</option>
+            <option value="electrical">Electrical</option>
+            <option value="multiple">Multiple issues</option>
+          </select>
+        </div>
+        <div class="pf-field"><label>VIN (optional)</label><input type="text" id="d-vin" placeholder="1HGBH41JXMN109186"/></div>
+        <div class="pf-field"><label>Additional notes</label><textarea id="d-notes" placeholder="Anything else we should know about the vehicle..."></textarea></div>
+
+        <div class="pf-field">
+          <label>Photos — upload exactly 8 photos (all required): 4 exterior corners, passenger side, driver side, interior passenger side, interior driver side</label>
+          <div id="photo-upload-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-top:0.5rem;">
+            ${['Front Left Corner','Front Right Corner','Rear Left Corner','Rear Right Corner','Passenger Side','Driver Side','Interior — Passenger','Interior — Driver'].map(function(label,i){
+              return '<div style="border:1.5px dashed var(--border);border-radius:6px;overflow:hidden;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--off);" onclick="document.getElementById(\'ph-'+i+'\').click()">' +
+                '<input type="file" id="ph-'+i+'" accept="image/*" style="display:none;" onchange="previewPhoto(this,\'thumb-'+i+'\')" />' +
+                '<img id="thumb-'+i+'" src="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />' +
+                '<div id="phLabel-'+i+'" style="text-align:center;padding:0.4rem;pointer-events:none;">' +
+                  '<div style="font-size:1.4rem;margin-bottom:0.25rem;"></div>' +
+                  '<div style="font-size:0.7rem;font-weight:600;color:var(--muted);">'+label+'</div>' +
+                '</div>' +
+              '</div>';
+            }).join('')}
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;">All 8 photos are required before you can submit.</div>
+        </div>
+
+        <button class="btn-blue" id="donate-btn" onclick="submitDonation()">Submit Donation</button>
+      </div>
+    </div>
+
+    <!-- CASH DONATION FORM -->
+    <div class="view" id="view-d-cash">
+      <div class="view-title">Make a Donation</div>
+      <div class="view-sub">Every dollar funds vehicle inspection, repair, and placement for families in need. A CRA tax receipt is issued for all donations.</div>
+      <div class="card">
+        <div id="cash-msg" class="form-msg"></div>
+        <div class="pf-row">
+          <div class="pf-field"><label>Donation amount (CAD)</label><input type="number" id="cd-amount" placeholder="50" min="1" step="0.01"/></div>
+          <div class="pf-field"><label>Frequency</label>
+            <select id="cd-frequency">
+              <option value="one-time">One-time</option>
+              <option value="weekly">Weekly</option>
+              <option value="bi-weekly">Bi-weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="annually">Annually</option>
+            </select>
+          </div>
+        </div>
+        <div class="pf-field"><label>Payment method</label>
+          <select id="cd-method">
+            <option value="">Select...</option>
+            <option value="etransfer">E-transfer</option>
+            <option value="cheque">Cheque</option>
+            <option value="cash">Cash</option>
+            <option value="online">Online payment</option>
+          </select>
+        </div>
+        <div style="background:var(--off);border:1px solid var(--border);border-radius:5px;padding:1rem 1.25rem;margin-bottom:1rem;">
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.3rem;">Tax receipt — who should it be issued to?</div>
+        </div>
+        <div class="pf-row">
+          <div class="pf-field"><label>Full name</label><input type="text" id="cd-name" placeholder="Jane Smith"/></div>
+          <div class="pf-field"><label>Organization (optional)</label><input type="text" id="cd-org" placeholder="ACME Corp"/></div>
+        </div>
+        <div class="pf-field"><label>Additional notes (optional)</label><textarea id="cd-notes" placeholder="In memory of someone, designated purpose, etc."></textarea></div>
+        <div style="background:var(--lb);border:1px solid #bfdbfe;border-radius:5px;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:0.82rem;color:var(--ink);line-height:1.6;">
+          <strong>Next step:</strong> After submitting this form, our team will contact you at <strong>${currentUser ? currentUser.email : ''}</strong> with payment instructions. For e-transfers, please send to <strong>info@effectivecare.ca</strong>.
+        </div>
+        <button class="btn-blue" id="cash-btn" onclick="submitCashDonation()">Submit Donation Request</button>
+      </div>
+    </div>
+
+    <!-- VOLUNTEER LABOUR -->
+    <div class="view" id="view-d-labour">
+      <div class="view-title">Volunteer Labour</div>
+      <div class="view-sub">Have mechanical skills? Help us repair donated vehicles so they can be placed with families in need.</div>
+      <div class="card">
+        <div id="labour-msg" class="form-msg"></div>
+        <p style="font-size:0.9rem;color:var(--ink);line-height:1.7;margin-bottom:1.25rem;">Volunteer mechanics, body technicians, and general labourers are always welcome. Let us know what you can help with and we will match you with a vehicle that needs your skills.</p>
+        <div class="pf-row">
+          <div class="pf-field"><label>Your name</label><input type="text" id="lb-name" placeholder="Jane Smith"/></div>
+          <div class="pf-field"><label>Phone number</label><input type="text" id="lb-phone" placeholder="604-555-1234"/></div>
+        </div>
+        <div class="pf-field"><label>Skills / area of expertise</label>
+          <select id="lb-skill">
+            <option value="">Select...</option>
+            <option>General mechanic</option>
+            <option>Engine / drivetrain</option>
+            <option>Brakes / suspension</option>
+            <option>Electrical / diagnostics</option>
+            <option>Body work / paint</option>
+            <option>Tires / wheels</option>
+            <option>General labour / cleaning</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="pf-field"><label>Availability</label>
+          <select id="lb-avail">
+            <option value="">Select...</option>
+            <option>Weekdays</option>
+            <option>Weekends</option>
+            <option>Flexible</option>
+            <option>One-time only</option>
+          </select>
+        </div>
+        <div class="pf-field"><label>Additional notes (optional)</label><textarea id="lb-notes" placeholder="Tell us about your experience, tools you have, or any constraints..."></textarea></div>
+        <button class="btn-blue" id="labour-btn" onclick="submitLabour()">Submit Volunteer Request</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="view" id="view-d-history">
+      <div class="view-title">My Donations</div>
+      <div class="view-sub">All vehicles you have donated through Effective Care.</div>
+      <div id="d-history-list"></div>
+    </div>
+
+    <!-- SEE YOUR CAR -->
+    <div class="view" id="view-d-seeyourcar">
+      <div class="view-title">See Your Car</div>
+      <div class="view-sub">Anonymized updates from the family that received your vehicle, shared with their consent.</div>
+      <div id="d-syc-content"></div>
+    </div>
+
+    <!-- ACCOUNT SETTINGS -->
+    <div class="view" id="view-d-account">
+      <div class="view-title">Account Settings</div>
+      <div class="view-sub">Manage your sign-in credentials and display preferences.</div>
+
+      <!-- Change Email -->
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-title">Email Address</div>
+        <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1rem;">Your current email: <strong id="acct-current-email"></strong></p>
+        <div id="acct-email-msg" class="form-msg"></div>
+        <div class="pf-field"><label>New email address</label><input type="email" id="acct-new-email" placeholder="new@example.com"/></div>
+        <button class="btn-blue" style="margin-top:0.5rem;" onclick="changeEmail()">Update Email</button>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-title">Password</div>
+        <div id="acct-pw-msg" class="form-msg"></div>
+        <div class="pf-field"><label>New password</label><input type="password" id="acct-new-pw" placeholder="At least 8 characters"/></div>
+        <div class="pf-field"><label>Confirm new password</label><input type="password" id="acct-confirm-pw" placeholder="Repeat new password"/></div>
+        <button class="btn-blue" style="margin-top:0.5rem;" onclick="changePassword()">Update Password</button>
+      </div>
+
+      <!-- Display Preferences -->
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-title">Display Preferences</div>
+        <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1rem;">Adjust the portal's appearance for your comfort.</p>
+        <div id="acct-pref-msg" class="form-msg"></div>
+        <div style="display:flex;flex-direction:column;gap:0.875rem;">
+          <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.9rem;">
+            <input type="checkbox" id="pref-highcontrast" style="width:1.1rem;height:1.1rem;cursor:pointer;" onchange="saveDisplayPrefs()"/>
+            High contrast mode
+          </label>
+          <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.9rem;">
+            <input type="checkbox" id="pref-darkmode" style="width:1.1rem;height:1.1rem;cursor:pointer;" onchange="saveDisplayPrefs()"/>
+            Dark mode
+          </label>
+          <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.9rem;">
+            <input type="checkbox" id="pref-largetext" style="width:1.1rem;height:1.1rem;cursor:pointer;" onchange="saveDisplayPrefs()"/>
+            Larger text
+          </label>
+        </div>
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:0.875rem;">Preferences are saved locally in your browser.</p>
+      </div>
+
+      <!-- Two-Factor Authentication -->
+      <div class="card">
+        <div class="card-title">Two-Factor Authentication</div>
+        <div id="acct-2fa-msg" class="form-msg"></div>
+        <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1rem;">Add an extra layer of security. When enabled, you will need a code from your authenticator app each time you sign in.</p>
+        <div id="acct-2fa-status" style="font-size:0.875rem;color:var(--muted);margin-bottom:1rem;">Checking status...</div>
+        <button class="btn-blue" id="acct-2fa-btn" onclick="toggle2FA()" style="display:none;">Enable Two-Factor Authentication</button>
+        <p style="font-size:0.72rem;color:var(--muted);margin-top:0.75rem;">2FA uses your Supabase account settings. You may be redirected to complete setup.</p>
+      </div>
+    </div>
+  `;
+
+  loadDonorData();
+}
+
+async function loadDonorData() {
+  var r = await sb.from('vehicle_donations').select('*').eq('donor_id', currentUser.id);
+  var donations = (r.data || []);
+
+  // Stats
+  var total   = donations.length;
+  var pending = donations.filter(function(d){ return d.status === 'pending' || d.status === 'review'; }).length;
+  var placed  = donations.filter(function(d){ return d.status === 'placed' || d.status === 'matched'; }).length;
+  document.getElementById('ds-total').textContent   = total;
+  document.getElementById('ds-pending').textContent = pending;
+  document.getElementById('ds-placed').textContent  = placed;
+
+  // Dashboard list
+  var dashEl = document.getElementById('d-dash-list');
+  if (donations.length === 0) {
+    dashEl.innerHTML = '<div class="empty"><div class="empty-title">No donations yet</div><div class="empty-desc">When you submit a donation it will appear here.</div><button class="btn-blue" onclick="showView(\'d-donate\')">Donate a Vehicle</button></div>';
+  } else {
+    dashEl.innerHTML = '<table class="data-table"><thead><tr><th>Vehicle</th><th>Year</th><th>Condition</th><th>Status</th><th>Submitted</th></tr></thead><tbody>' +
+      donations.slice(0,5).map(function(d){
+        return '<tr><td>' + esc(d.make) + ' ' + esc(d.model) + '</td><td>' + d.year + '</td><td>' + esc(d.condition) + '</td><td>' + badge(d.status) + '</td><td>' + fmtDate(d.created_at) + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+
+  // History
+  var histEl = document.getElementById('d-history-list');
+  if (donations.length === 0) {
+    histEl.innerHTML = '<div class="card"><div class="empty"><div class="empty-title">No donations yet</div><div class="empty-desc">Your submitted donations will appear here.</div></div></div>';
+  } else {
+    histEl.innerHTML = donations.map(function(d){
+      return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">' +
+        '<div><div style="font-weight:700;font-size:0.95rem;color:var(--navy);">' + esc(d.year + ' ' + d.make + ' ' + d.model) + '</div>' +
+        '<div style="font-size:0.8rem;color:var(--muted);margin-top:0.25rem;">' + esc(d.condition) + (d.mileage ? ' &nbsp;·&nbsp; ' + d.mileage.toLocaleString() + ' km' : '') + '</div></div>' +
+        badge(d.status) + '</div>' +
+        (d.notes ? '<div style="margin-top:0.875rem;font-size:0.83rem;color:var(--muted);">' + esc(d.notes) + '</div>' : '') +
+        '<div style="margin-top:0.75rem;font-size:0.75rem;color:var(--muted);">Submitted ' + fmtDate(d.created_at) + '</div></div>';
+    }).join('');
+  }
+
+  // See Your Car — messaging
+  var sycEl = document.getElementById('d-syc-content');
+  var placed_donations = donations.filter(function(d){ return d.status === 'placed' || d.status === 'matched'; });
+  if (placed_donations.length === 0) {
+    sycEl.innerHTML = '<div class="card"><div class="empty"><div class="empty-title">No placements yet</div><div class="empty-desc">Once your vehicle is placed with a family, you can send them an anonymous message here.</div></div></div>';
+  } else {
+    // If multiple placed vehicles, show a selector
+    var selectorHtml = '';
+    if (placed_donations.length > 1) {
+      selectorHtml = '<div class="card" style="margin-bottom:1rem;">' +
+        '<div style="font-size:0.88rem;font-weight:600;color:var(--navy);margin-bottom:0.75rem;">Select a vehicle</div>' +
+        '<select id="syc-vehicle-sel" style="width:100%;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;background:#fff;color:var(--ink);outline:none;" onchange="loadSycThread(this.value)">' +
+        placed_donations.map(function(d){ return '<option value="' + d.id + '">' + esc(d.year + ' ' + d.make + ' ' + d.model) + '</option>'; }).join('') +
+        '</select></div>';
+    }
+    sycEl.innerHTML = selectorHtml + '<div id="syc-thread-wrap"></div>';
+    await loadSycThread(placed_donations[0].id);
+  }
+}
+
+async function loadSycThread(donationId) {
+  var wrapEl = document.getElementById('syc-thread-wrap');
+  if (!wrapEl) return;
+  // Find the donation object
+  var r = await sb.from('vehicle_donations').select('year,make,model').eq('id', donationId);
+  var don = (r.data && r.data[0]) || {};
+  var msgRes = await sb.from('vehicle_messages').select('*').eq('donation_id', donationId).order('created_at', {ascending:true});
+  var msgs = msgRes.data || [];
+  var thread = msgs.map(function(m){
+    var fromDonor = m.sender_role === 'donor';
+    return '<div style="display:flex;flex-direction:column;align-items:' + (fromDonor?'flex-end':'flex-start') + ';margin-bottom:0.875rem;">' +
+      '<div style="max-width:80%;background:' + (fromDonor?'var(--dark)':'var(--off)') + ';color:' + (fromDonor?'#fff':'var(--ink)') + ';border-radius:12px ' + (fromDonor?'4px 12px 12px':'12px 12px 4px') + ';padding:0.75rem 1rem;font-size:0.875rem;line-height:1.6;">' +
+      esc(m.message) + '</div>' +
+      '<div style="font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">' + (fromDonor?'You':'Recipient') + ' · ' + fmtDate(m.created_at) + '</div></div>';
+  }).join('');
+  wrapEl.innerHTML =
+    '<div class="card" style="margin-bottom:1rem;">' +
+    '<div class="card-title">' + esc((don.year||'') + ' ' + (don.make||'') + ' ' + (don.model||'')) + '</div>' +
+    (msgs.length === 0 ? '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.875rem;">No messages yet — send the first one below.</div>' : '<div style="margin-bottom:1rem;">' + thread + '</div>') +
+    '<div style="border-top:1px solid var(--border);padding-top:1rem;display:flex;gap:0.75rem;align-items:flex-end;">' +
+      '<textarea id="syc-compose" placeholder="Write a message to the recipient family (anonymous — your name is not shared)..." style="flex:1;padding:0.7rem 0.875rem;border:1.5px solid var(--border);border-radius:5px;font-size:0.875rem;font-family:inherit;resize:vertical;min-height:72px;"></textarea>' +
+      '<button class="btn-blue" style="white-space:nowrap;padding:0.7rem 1.25rem;" onclick="sendDonorMessage(\'' + donationId + '\')">Send</button>' +
+    '</div>' +
+    '<div id="syc-msg" class="form-msg" style="margin-top:0.5rem;margin-bottom:0;"></div>' +
+    '</div>';
+}
+
+// ── PHOTO PREVIEW ─────────────────────────────────────────────────────────
+function previewPhoto(input, thumbId) {
+  var thumb = document.getElementById(thumbId);
+  var idx = thumbId.replace('thumb-','');
+  var label = document.getElementById('phLabel-'+idx);
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      thumb.src = e.target.result;
+      thumb.style.display = 'block';
+      if (label) label.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// ── UPLOAD PHOTOS TO SUPABASE STORAGE ─────────────────────────────────────
+async function uploadDonationPhotos(donationId) {
+  var PHOTO_LABELS = ['front-left','front-right','rear-left','rear-right','passenger-side','driver-side','interior-passenger','interior-driver'];
+  var urls = [];
+  for (var i = 0; i < 8; i++) {
+    var input = document.getElementById('ph-' + i);
+    if (!input || !input.files || !input.files[0]) continue;
+    var file = input.files[0];
+    var ext = file.name.split('.').pop();
+    var path = 'donations/' + donationId + '/' + PHOTO_LABELS[i] + '.' + ext;
+    var up = await sb.storage.from('vehicle-images').upload(path, file, { upsert: true });
+    if (!up.error) {
+      var pub = sb.storage.from('vehicle-images').getPublicUrl(path);
+      urls.push(pub.data.publicUrl);
+    }
+  }
+  return urls;
+}
+
+async function submitDonation() {
+  var make       = document.getElementById('d-make').value.trim();
+  var model      = document.getElementById('d-model').value.trim();
+  var year       = document.getElementById('d-year').value;
+  var condition  = document.getElementById('d-condition').value;
+  var body_dmg   = document.getElementById('d-body').value;
+  var mechanical = document.getElementById('d-mechanical').value;
+  var mileage    = document.getElementById('d-mileage').value;
+  var vin        = document.getElementById('d-vin').value.trim();
+  var notes      = document.getElementById('d-notes').value.trim();
+
+  // All 8 photos required
+  var photoCount = 0;
+  for (var i = 0; i < 8; i++) {
+    var inp = document.getElementById('ph-' + i);
+    if (inp && inp.files && inp.files[0]) photoCount++;
+  }
+  var hasPhoto = photoCount === 8;
+
+  if (!make || !model || !year || !condition) {
+    showFormMsg('donate-msg', 'Please fill in make, model, year, and condition.', 'err'); return;
+  }
+  if (!hasPhoto) {
+    showFormMsg('donate-msg', 'Please upload all 8 required photos before submitting.', 'err'); return;
+  }
+
+  var btn = document.getElementById('donate-btn');
+  btn.disabled = true; btn.textContent = 'Uploading photos...';
+
+  // Insert record first to get an id for the storage path
+  var r = await sb.from('vehicle_donations').insert({
+    donor_id: currentUser.id,
+    make: make, model: model,
+    year: parseInt(year),
+    mileage: mileage ? parseInt(mileage) : null,
+    condition: condition,
+    body_damage: body_dmg || null,
+    mechanical_issues: mechanical || null,
+    vin: vin || null, notes: notes || null,
+    status: 'pending'
+  }).select('id');
+
+  if (r.error) {
+    showFormMsg('donate-msg', 'Could not submit: ' + r.error.message, 'err');
+    btn.disabled = false; btn.textContent = 'Submit Donation';
+    return;
+  }
+
+  var donationId = r.data[0].id;
+  btn.textContent = 'Uploading photos...';
+  var photoUrls = await uploadDonationPhotos(donationId);
+
+  // Save photo URLs back to the record
+  if (photoUrls.length > 0) {
+    await sb.from('vehicle_donations').update({ photo_urls: photoUrls }).eq('id', donationId);
+  }
+
+  showFormMsg('donate-msg', 'Donation submitted. We will be in touch within 2 business days.', 'ok');
+  ['d-make','d-model','d-year','d-mileage','d-vin','d-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('d-condition').value = '';
+  document.getElementById('d-body').value = 'none';
+  document.getElementById('d-mechanical').value = 'none';
+  // Clear photo previews
+  for (var j = 0; j < 6; j++) {
+    var pinp = document.getElementById('ph-' + j);
+    var pthumb = document.getElementById('thumb-' + j);
+    var plabel = document.getElementById('phLabel-' + j);
+    if (pinp) pinp.value = '';
+    if (pthumb) { pthumb.src = ''; pthumb.style.display = 'none'; }
+    if (plabel) plabel.style.display = '';
+  }
+  btn.disabled = false; btn.textContent = 'Submit Donation';
+  setTimeout(function(){ showView('d-history'); loadDonorData(); }, 1800);
+}
+
+// ── CASH DONATION ──────────────────────────────────────────────────────────
+async function submitCashDonation() {
+  var amount    = document.getElementById('cd-amount').value;
+  var frequency = document.getElementById('cd-frequency').value;
+  var method    = document.getElementById('cd-method').value;
+  var name      = document.getElementById('cd-name').value.trim();
+  var org       = document.getElementById('cd-org').value.trim();
+  var notes     = document.getElementById('cd-notes').value.trim();
+
+  if (!amount || !method || !name) {
+    showFormMsg('cash-msg', 'Please fill in amount, payment method, and name for the tax receipt.', 'err'); return;
+  }
+
+  var btn = document.getElementById('cash-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  var r = await sb.from('cash_donations').insert({
+    donor_id: currentUser.id,
+    donor_email: currentUser.email,
+    amount: parseFloat(amount),
+    frequency: frequency,
+    payment_method: method,
+    receipt_name: name,
+    receipt_org: org || null,
+    notes: notes || null,
+    status: 'pending'
+  });
+
+  if (r.error) {
+    showFormMsg('cash-msg', 'Could not submit: ' + r.error.message, 'err');
+    btn.disabled = false; btn.textContent = 'Submit Donation Request';
+  } else {
+    showFormMsg('cash-msg', 'Request submitted! Our team will email you at ' + currentUser.email + ' with payment instructions within 2 business days.', 'ok');
+    ['cd-amount','cd-name','cd-org','cd-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('cd-method').value = '';
+    document.getElementById('cd-frequency').value = 'one-time';
+    btn.disabled = false; btn.textContent = 'Submit Donation Request';
+  }
+}
+
+// ── VOLUNTEER LABOUR ───────────────────────────────────────────────────────
+async function submitLabour() {
+  var name  = document.getElementById('lb-name').value.trim();
+  var phone = document.getElementById('lb-phone').value.trim();
+  var skill = document.getElementById('lb-skill').value;
+  var avail = document.getElementById('lb-avail').value;
+  var notes = document.getElementById('lb-notes').value.trim();
+
+  if (!name || !skill || !avail) {
+    showFormMsg('labour-msg', 'Please fill in your name, skill area, and availability.', 'err'); return;
+  }
+
+  var btn = document.getElementById('labour-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  var r = await sb.from('volunteer_labour').insert({
+    donor_id: currentUser.id,
+    donor_email: currentUser.email,
+    volunteer_name: name,
+    phone: phone || null,
+    skill_area: skill,
+    availability: avail,
+    notes: notes || null,
+    status: 'pending'
+  });
+
+  if (r.error) {
+    showFormMsg('labour-msg', 'Could not submit: ' + r.error.message, 'err');
+    btn.disabled = false; btn.textContent = 'Submit Volunteer Request';
+  } else {
+    showFormMsg('labour-msg', 'Thank you! We will be in touch with matching opportunities.', 'ok');
+    ['lb-name','lb-phone','lb-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('lb-skill').value = '';
+    document.getElementById('lb-avail').value = '';
+    btn.disabled = false; btn.textContent = 'Submit Volunteer Request';
+  }
+}
+
+// ── RECIPIENT PORTAL ──────────────────────────────────────────────────────
+function buildRecipient() {
+  buildNav([
+    {id:'r-dashboard', label:'Dashboard'},
+    {id:'r-apply',     label:'Apply for a Vehicle'},
+    {id:'r-repair',    label:'Car Repair Application'},
+    {id:'r-status',    label:'Application Status'},
+    {id:'r-messages',  label:'Messages'},
+    {id:'r-account',   label:'Account Settings'},
+  ], 'Recipient');
+
+  document.getElementById('portalMain').innerHTML = `
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-r-dashboard">
+      <div class="view-title">Your Dashboard</div>
+      <div class="view-sub">Track your application and stay updated.</div>
+      <div class="card" id="r-dash-card">
+        <div class="card-title">Application status</div>
+        <div id="r-dash-content"></div>
+      </div>
+    </div>
+
+    <!-- MULTI-STEP APPLICATION -->
+    <div class="view" id="view-r-apply">
+      <div class="view-title">Apply for a Vehicle</div>
+      <div class="view-sub">The application takes about 10 minutes. All information is kept confidential.</div>
+      <div class="card">
+        <!-- Step bar -->
+        <div class="step-bar">
+          <div class="step-item">
+            <div class="step-num active" id="sn-1">1</div>
+            <div class="step-label active" id="sl-1">Household</div>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-item">
+            <div class="step-num" id="sn-2">2</div>
+            <div class="step-label" id="sl-2">Employment</div>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-item">
+            <div class="step-num" id="sn-3">3</div>
+            <div class="step-label" id="sl-3">Circumstances</div>
+          </div>
+          <div class="step-divider"></div>
+          <div class="step-item">
+            <div class="step-num" id="sn-4">4</div>
+            <div class="step-label" id="sl-4">Review</div>
+          </div>
+        </div>
+
+        <div id="app-msg" class="form-msg"></div>
+
+        <!-- Step 1: Household -->
+        <div class="step-panel active" id="step-1">
+          <div class="pf-row">
+            <div class="pf-field"><label>City / Municipality</label><input type="text" id="a-city" placeholder="Vancouver"/></div>
+            <div class="pf-field"><label>Province</label>
+              <select id="a-province" disabled style="background:var(--off);color:var(--muted);cursor:not-allowed;">
+                <option value="BC" selected>British Columbia</option>
+              </select>
+              <span style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;display:block;">Effective Care currently serves British Columbia only.</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-field"><label>Household size (adults + children)</label><input type="number" id="a-household" placeholder="3" min="1"/></div>
+            <div class="pf-field"><label>Number of dependents under 18</label><input type="number" id="a-dependents" placeholder="2" min="0"/></div>
+          </div>
+          <div class="pf-field"><label>Approximate annual household income (CAD)</label>
+            <select id="a-income">
+              <option value="">Select range...</option>
+              <option>Under $20,000</option>
+              <option>$20,000 – $35,000</option>
+              <option>$35,000 – $50,000</option>
+              <option>$50,000 – $70,000</option>
+              <option>Over $70,000</option>
+            </select>
+          </div>
+          <div class="pf-field"><label>Current housing situation</label>
+            <select id="a-housing">
+              <option value="">Select...</option>
+              <option>Renting — stable</option>
+              <option>Renting — at risk</option>
+              <option>Temporary or transitional housing</option>
+              <option>Staying with family or friends</option>
+              <option>Homeowner</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="step-nav">
+            <button class="btn-blue" onclick="stepNext(1)">Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Employment -->
+        <div class="step-panel" id="step-2">
+          <div class="pf-field"><label>Current employment status</label>
+            <select id="a-employment">
+              <option value="">Select...</option>
+              <option>Employed full-time</option>
+              <option>Employed part-time</option>
+              <option>Self-employed</option>
+              <option>Seeking employment</option>
+              <option>Unable to work — medical</option>
+              <option>Student</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="pf-field"><label>Distance from home to work or school (km)</label><input type="number" id="a-distance" placeholder="25" min="0"/></div>
+          <div class="pf-field"><label>Do you currently have access to reliable transportation?</label>
+            <select id="a-transport">
+              <option value="">Select...</option>
+              <option>No — I have no vehicle</option>
+              <option>Partial — I rely on transit or others</option>
+              <option>Yes — but my vehicle is unreliable</option>
+            </select>
+          </div>
+          <div class="pf-field"><label>Do you have a valid BC driver's licence?</label>
+            <select id="a-licence">
+              <option value="">Select...</option>
+              <option>Yes — Class 5 or equivalent</option>
+              <option>Yes — Learner's or Novice</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="step-nav">
+            <button class="btn-outline" onclick="stepGo(1)">Back</button>
+            <button class="btn-blue" onclick="stepNext(2)">Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Circumstances -->
+        <div class="step-panel" id="step-3">
+          <div class="pf-field"><label>Briefly describe why you need a vehicle and how it would change your situation</label>
+            <textarea id="a-reason" placeholder="Please describe your situation in your own words (3–5 sentences). There are no right answers — we are looking for genuine need." style="min-height:120px;"></textarea>
+          </div>
+          <div class="pf-field"><label>Are there any special circumstances we should be aware of? (optional)</label>
+            <textarea id="a-special" placeholder="For example: disability, single-parent household, recent job loss, medical appointments, etc."></textarea>
+          </div>
+          <div class="pf-field"><label>Are you willing to share anonymized updates with the donor family?</label>
+            <select id="a-consent">
+              <option value="">Select...</option>
+              <option value="yes">Yes — I am comfortable sharing updates (no personal details shared)</option>
+              <option value="no">No — I prefer to keep this private</option>
+            </select>
+          </div>
+          <div class="step-nav">
+            <button class="btn-outline" onclick="stepGo(2)">Back</button>
+            <button class="btn-blue" onclick="stepNext(3)">Review Application</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Review & Submit -->
+        <div class="step-panel" id="step-4">
+          <div id="app-review"></div>
+          <div style="margin-top:1.5rem;padding:1rem;background:var(--off);border-radius:6px;border:1px solid var(--border);">
+            <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;">
+              By submitting, you confirm that all information provided is accurate to the best of your knowledge. Effective Care will contact you by email within 14 days of submission.
+            </div>
+          </div>
+          <div class="step-nav">
+            <button class="btn-outline" onclick="stepGo(3)">Back</button>
+            <button class="btn-blue" id="app-submit-btn" onclick="submitApplication()">Submit Application</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="view" id="view-r-status">
+      <div class="view-title">Application Status</div>
+      <div class="view-sub">Track the progress of your application.</div>
+      <div id="r-status-list"></div>
+    </div>
+
+    <!-- CAR REPAIR APPLICATION -->
+    <div class="view" id="view-r-repair">
+      <div class="view-title">Car Repair Application</div>
+      <div class="view-sub">If you own a vehicle that needs repairs but cannot afford them, you may qualify for discounted or free repair assistance through Effective Care.</div>
+      <div class="card">
+        <div id="repair-msg" class="form-msg"></div>
+        <div style="background:var(--lb);border:1px solid #bfdbfe;border-radius:5px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.83rem;color:var(--ink);line-height:1.6;">
+          <strong>How it works:</strong> Volunteer mechanics and financial donations cover the cost of parts and labour for qualifying applicants. We prioritize households with low income, dependents, and essential vehicle use (work, medical, school).
+        </div>
+        <div class="pf-row">
+          <div class="pf-field"><label>Vehicle make</label><input type="text" id="rp-make" placeholder="Toyota"/></div>
+          <div class="pf-field"><label>Vehicle model</label><input type="text" id="rp-model" placeholder="Corolla"/></div>
+        </div>
+        <div class="pf-row">
+          <div class="pf-field"><label>Year</label><input type="number" id="rp-year" placeholder="2008" min="1980" max="2025"/></div>
+          <div class="pf-field"><label>Mileage (km)</label><input type="number" id="rp-mileage" placeholder="180000"/></div>
+        </div>
+        <div class="pf-field"><label>Describe the issue(s) needing repair</label>
+          <textarea id="rp-issue" style="min-height:110px;" placeholder="e.g. Engine making knocking noise, brakes grinding, oil leak, etc."></textarea>
+        </div>
+        <div class="pf-field"><label>Approximate annual household income (CAD)</label>
+          <select id="rp-income">
+            <option value="">Select range...</option>
+            <option>Under $20,000</option>
+            <option>$20,000 – $35,000</option>
+            <option>$35,000 – $50,000</option>
+            <option>$50,000 – $70,000</option>
+            <option>Over $70,000</option>
+          </select>
+        </div>
+        <div class="pf-field"><label>Why do you need this vehicle repaired?</label>
+          <textarea id="rp-reason" style="min-height:100px;" placeholder="Explain how you use the vehicle and why repairs are essential to your situation (work, medical, school, children, etc.)"></textarea>
+        </div>
+        <div class="pf-field"><label>Special circumstances (optional)</label>
+          <textarea id="rp-special" placeholder="e.g. single parent, disability, recent job loss, medical appointments"></textarea>
+        </div>
+        <div class="pf-field">
+          <label>Vehicle photos — upload exactly 8 photos (all required): 4 exterior corners, passenger side, driver side, interior passenger side, interior driver side</label>
+          <div id="repair-photo-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-top:0.5rem;">
+            ${['Front Left Corner','Front Right Corner','Rear Left Corner','Rear Right Corner','Passenger Side','Driver Side','Interior — Passenger','Interior — Driver'].map(function(label,i){
+              return '<div style="border:1.5px dashed var(--border);border-radius:6px;overflow:hidden;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;background:var(--off);" onclick="document.getElementById(\'rp-ph-'+i+'\').click()">' +
+                '<input type="file" id="rp-ph-'+i+'" accept="image/*" style="display:none;" onchange="previewPhoto(this,\'rp-thumb-'+i+'\')" />' +
+                '<img id="rp-thumb-'+i+'" src="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />' +
+                '<div id="rpLabel-'+i+'" style="text-align:center;padding:0.4rem;pointer-events:none;">' +
+                  '<div style="font-size:1.4rem;margin-bottom:0.25rem;"></div>' +
+                  '<div style="font-size:0.7rem;font-weight:600;color:var(--muted);">'+label+'</div>' +
+                '</div>' +
+              '</div>';
+            }).join('')}
+          </div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;">All 8 photos are required before you can submit.</div>
+        </div>
+        <button class="btn-blue" id="repair-btn" onclick="submitRepairApp()">Submit Repair Application</button>
+      </div>
+    </div>
+
+    <!-- MESSAGES (See Your Car) -->
+    <div class="view" id="view-r-messages">
+      <div class="view-title">Messages</div>
+      <div class="view-sub">Messages from the donor family who gave your vehicle.</div>
+      <div id="r-messages-content"></div>
+    </div>
+
+    <!-- ACCOUNT SETTINGS (recipient) -->
+    <div class="view" id="view-r-account">
+      <div class="view-title">Account Settings</div>
+      <div class="view-sub">Manage your sign-in credentials and display preferences.</div>
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-title">Email Address</div>
+        <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1rem;">Your current email: <strong id="r-acct-current-email"></strong></p>
+        <div id="r-acct-email-msg" class="form-msg"></div>
+        <div class="pf-field"><label>New email address</label><input type="email" id="r-acct-new-email" placeholder="new@example.com"/></div>
+        <button class="btn-blue" style="margin-top:0.5rem;" onclick="changeEmailR()">Update Email</button>
+      </div>
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-title">Password</div>
+        <div id="r-acct-pw-msg" class="form-msg"></div>
+        <div class="pf-field"><label>New password</label><input type="password" id="r-acct-new-pw" placeholder="At least 8 characters"/></div>
+        <div class="pf-field"><label>Confirm new password</label><input type="password" id="r-acct-confirm-pw" placeholder="Repeat new password"/></div>
+        <button class="btn-blue" style="margin-top:0.5rem;" onclick="changePasswordR()">Update Password</button>
+      </div>
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-title">Display Preferences</div>
+        <div style="display:flex;flex-direction:column;gap:0.875rem;margin-top:0.5rem;">
+          <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.9rem;">
+            <input type="checkbox" id="r-pref-highcontrast" style="width:1.1rem;height:1.1rem;cursor:pointer;" onchange="saveDisplayPrefsR()"/>High contrast mode
+          </label>
+          <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.9rem;">
+            <input type="checkbox" id="r-pref-darkmode" style="width:1.1rem;height:1.1rem;cursor:pointer;" onchange="saveDisplayPrefsR()"/>Dark mode
+          </label>
+          <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.9rem;">
+            <input type="checkbox" id="r-pref-largetext" style="width:1.1rem;height:1.1rem;cursor:pointer;" onchange="saveDisplayPrefsR()"/>Larger text
+          </label>
+        </div>
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:0.875rem;">Preferences are saved locally in your browser.</p>
+      </div>
+    </div>
+  `;
+
+  loadRecipientData();
+  loadRecipientMessages();
+  // Reset draft state for this session
+  _appStep = 1;
+  _draftId = null;
+  // Wire auto-save on all form inputs (DOM is ready since innerHTML is synchronous)
+  wireFormDraftSave();
+  // Restore any saved draft asynchronously (may call stepGo to jump to saved step)
+  loadDraft();
+}
+
+var _appStep = 1;
+var _draftTimer = null;
+
+// ── DRAFT AUTO-SAVE ───────────────────────────────────────────────────────
+function getDraftData() {
+  return {
+    city:       document.getElementById('a-city')       ? document.getElementById('a-city').value       : '',
+    province:   'BC',
+    household:  document.getElementById('a-household')  ? document.getElementById('a-household').value  : '',
+    dependents: document.getElementById('a-dependents') ? document.getElementById('a-dependents').value : '',
+    income:     document.getElementById('a-income')     ? document.getElementById('a-income').value     : '',
+    housing:    document.getElementById('a-housing')    ? document.getElementById('a-housing').value    : '',
+    employment: document.getElementById('a-employment') ? document.getElementById('a-employment').value : '',
+    distance:   document.getElementById('a-distance')   ? document.getElementById('a-distance').value   : '',
+    transport:  document.getElementById('a-transport')  ? document.getElementById('a-transport').value  : '',
+    licence:    document.getElementById('a-licence')    ? document.getElementById('a-licence').value    : '',
+    reason:     document.getElementById('a-reason')     ? document.getElementById('a-reason').value     : '',
+    special:    document.getElementById('a-special')    ? document.getElementById('a-special').value    : '',
+    consent:    document.getElementById('a-consent')    ? document.getElementById('a-consent').value    : '',
+    step:       _appStep
+  };
+}
+
+var _draftId = null; // track existing draft row id
+
+async function saveDraft() {
+  if (!currentUser) return;
+  var data = getDraftData();
+  var result;
+  try {
+    if (_draftId) {
+      // Update existing row by its id
+      result = await sb.from('application_drafts').update({
+        draft: data,
+        updated_at: new Date().toISOString()
+      }).eq('id', _draftId);
+      if (result.error) console.error('[draft] update error:', result.error);
+    } else {
+      // Check if a row already exists for this user
+      var existing = await sb.from('application_drafts').select('id').eq('applicant_id', currentUser.id);
+      if (existing.error) console.error('[draft] select error:', existing.error);
+      if (existing.data && existing.data.length > 0) {
+        _draftId = existing.data[0].id;
+        result = await sb.from('application_drafts').update({
+          draft: data,
+          updated_at: new Date().toISOString()
+        }).eq('id', _draftId);
+        if (result.error) console.error('[draft] update2 error:', result.error);
+      } else {
+        // Insert new row
+        result = await sb.from('application_drafts').insert({
+          applicant_id: currentUser.id,
+          draft: data,
+          updated_at: new Date().toISOString()
+        });
+        if (result.error) console.error('[draft] insert error:', result.error);
+        // Try to read back the id
+        var check = await sb.from('application_drafts').select('id').eq('applicant_id', currentUser.id);
+        if (check.data && check.data.length > 0) _draftId = check.data[0].id;
+      }
+    }
+  } catch(e) { console.error('[draft] exception:', e); }
+}
+
+async function saveDraftDebug() {
+  // Call from browser console to test: saveDraftDebug()
+  console.log('[draft] currentUser:', currentUser ? currentUser.id : 'null');
+  console.log('[draft] _draftId:', _draftId);
+  console.log('[draft] _appStep:', _appStep);
+  var data = getDraftData();
+  console.log('[draft] data:', data);
+  await saveDraft();
+  console.log('[draft] done, _draftId now:', _draftId);
+}
+
+function scheduleDraftSave() {
+  clearTimeout(_draftTimer);
+  _draftTimer = setTimeout(saveDraft, 1500);
+}
+
+function wireFormDraftSave() {
+  var ids = ['a-city','a-household','a-dependents','a-income','a-housing','a-employment','a-distance','a-transport','a-licence','a-reason','a-special','a-consent'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', scheduleDraftSave);
+  });
+}
+
+async function loadDraft() {
+  if (!currentUser) return;
+  try {
+    var r = await sb.from('application_drafts').select('id,draft').eq('applicant_id', currentUser.id);
+    if (!r.data || !r.data.length) return;
+    // Cache the row id for faster future saves
+    if (r.data[0].id) _draftId = r.data[0].id;
+    var d = r.data[0].draft;
+    if (!d) return;
+    var set = function(id, val) { var el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+    set('a-city',       d.city);
+    set('a-household',  d.household);
+    set('a-dependents', d.dependents);
+    set('a-income',     d.income);
+    set('a-housing',    d.housing);
+    set('a-employment', d.employment);
+    set('a-distance',   d.distance);
+    set('a-transport',  d.transport);
+    set('a-licence',    d.licence);
+    set('a-reason',     d.reason);
+    set('a-special',    d.special);
+    set('a-consent',    d.consent);
+    if (d.step && d.step > 1) stepGo(d.step);
+  } catch(e) { /* silent */ }
+}
+
+async function clearDraft() {
+  if (!currentUser) return;
+  try {
+    await sb.from('application_drafts').delete().eq('applicant_id', currentUser.id);
+  } catch(e) {}
+}
+
+function stepGo(n) {
+  // Hide current
+  document.getElementById('step-' + _appStep).classList.remove('active');
+  document.getElementById('sn-' + _appStep).classList.remove('active');
+  document.getElementById('sl-' + _appStep).classList.remove('active');
+  _appStep = n;
+  document.getElementById('step-' + _appStep).classList.add('active');
+  document.getElementById('sn-' + _appStep).classList.add('active');
+  document.getElementById('sl-' + _appStep).classList.add('active');
+  // Mark previous steps done
+  for (var i = 1; i < _appStep; i++) {
+    document.getElementById('sn-' + i).classList.add('done');
+    document.getElementById('sn-' + i).classList.remove('active');
+  }
+  // Save draft so the current step is remembered if the user leaves
+  saveDraft();
+}
+
+function stepNext(current) {
+  // Validate current step
+  if (current === 1) {
+    if (!document.getElementById('a-city').value.trim() ||
+        !document.getElementById('a-household').value ||
+        !document.getElementById('a-income').value ||
+        !document.getElementById('a-housing').value) {
+      showFormMsg('app-msg', 'Please fill in all fields before continuing.', 'err'); return;
+    }
+  }
+  if (current === 2) {
+    if (!document.getElementById('a-employment').value ||
+        !document.getElementById('a-transport').value ||
+        !document.getElementById('a-licence').value) {
+      showFormMsg('app-msg', 'Please fill in all fields before continuing.', 'err'); return;
+    }
+    if (document.getElementById('a-licence').value === 'No') {
+      showFormMsg('app-msg', 'A valid BC driver\'s licence is required to receive a vehicle.', 'err'); return;
+    }
+  }
+  if (current === 3) {
+    if (!document.getElementById('a-reason').value.trim() ||
+        !document.getElementById('a-consent').value) {
+      showFormMsg('app-msg', 'Please complete all required fields.', 'err'); return;
+    }
+    buildReview();
+  }
+  clearFormMsg('app-msg');
+  stepGo(current + 1);
+}
+
+function buildReview() {
+  var rows = [
+    ['City', document.getElementById('a-city').value],
+    ['Household size', document.getElementById('a-household').value],
+    ['Dependents under 18', document.getElementById('a-dependents').value || '0'],
+    ['Annual income', document.getElementById('a-income').value],
+    ['Housing', document.getElementById('a-housing').value],
+    ['Employment', document.getElementById('a-employment').value],
+    ['Distance to work/school', (document.getElementById('a-distance').value || '—') + ' km'],
+    ['Transportation access', document.getElementById('a-transport').value],
+    ['Driver\'s licence', document.getElementById('a-licence').value],
+    ['Share updates with donor', document.getElementById('a-consent').value === 'yes' ? 'Yes' : 'No'],
+  ];
+  document.getElementById('app-review').innerHTML =
+    '<table class="data-table" style="margin-bottom:1rem;"><thead><tr><th>Field</th><th>Your answer</th></tr></thead><tbody>' +
+    rows.map(function(r){ return '<tr><td style="color:var(--muted);">' + r[0] + '</td><td>' + esc(r[1]) + '</td></tr>'; }).join('') +
+    '</tbody></table>' +
+    '<div style="background:var(--off);border:1px solid var(--border);border-radius:6px;padding:1rem;font-size:0.83rem;color:var(--ink);line-height:1.6;">' +
+    '<strong>Your statement:</strong><br>' + esc(document.getElementById('a-reason').value) + '</div>';
+}
+
+async function submitApplication() {
+  var btn = document.getElementById('app-submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  var r = await sb.from('applications').insert({
+    applicant_id: currentUser.id,
+    applicant_email: currentUser.email,
+    city: document.getElementById('a-city').value.trim(),
+    province: document.getElementById('a-province').value,
+    household_size: parseInt(document.getElementById('a-household').value) || null,
+    dependents: parseInt(document.getElementById('a-dependents').value) || 0,
+    income_range: document.getElementById('a-income').value,
+    housing: document.getElementById('a-housing').value,
+    employment: document.getElementById('a-employment').value,
+    distance_km: parseInt(document.getElementById('a-distance').value) || null,
+    transport_access: document.getElementById('a-transport').value,
+    licence: document.getElementById('a-licence').value,
+    reason: document.getElementById('a-reason').value.trim(),
+    special_circumstances: document.getElementById('a-special').value.trim() || null,
+    donor_consent: document.getElementById('a-consent').value === 'yes',
+    status: 'submitted'
+  });
+
+  if (r.error) {
+    showFormMsg('app-msg', 'Could not submit: ' + r.error.message, 'err');
+    btn.disabled = false; btn.textContent = 'Submit Application';
+  } else {
+    clearDraft();
+    showFormMsg('app-msg', 'Application submitted. We will be in touch within 14 days.', 'ok');
+    btn.textContent = 'Submitted';
+    setTimeout(function(){ showView('r-status'); loadRecipientData(); }, 2000);
+  }
+}
+
+async function loadRecipientData() {
+  var r = await sb.from('applications').select('*').eq('applicant_id', currentUser.id);
+  var apps = r.data || [];
+
+  // Dashboard card
+  var dashEl = document.getElementById('r-dash-content');
+  if (apps.length === 0) {
+    dashEl.innerHTML = '<div class="empty"><div class="empty-title">No application on file</div><div class="empty-desc">Start your application — it takes about 10 minutes and is free to submit.</div><button class="btn-blue" onclick="showView(\'r-apply\')">Apply for a Vehicle</button></div>';
+  } else {
+    var latest = apps[apps.length - 1];
+    dashEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">' +
+      '<div><div style="font-weight:700;color:var(--navy);">Application submitted ' + fmtDate(latest.created_at) + '</div>' +
+      '<div style="font-size:0.8rem;color:var(--muted);margin-top:0.25rem);">' + esc(latest.city || '') + (latest.province ? ', ' + latest.province : '') + '</div></div>' +
+      badge(latest.status) + '</div>' +
+      statusNote(latest.status);
+  }
+
+  // Status list
+  var statusEl = document.getElementById('r-status-list');
+  if (apps.length === 0) {
+    statusEl.innerHTML = '<div class="card"><div class="empty"><div class="empty-title">No applications yet</div><div class="empty-desc">Once you submit an application it will appear here.</div></div></div>';
+  } else {
+    statusEl.innerHTML = apps.map(function(a){
+      return '<div class="card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">' +
+        '<div><div style="font-weight:700;color:var(--navy);">Application — ' + fmtDate(a.created_at) + '</div>' +
+        '<div style="font-size:0.8rem;color:var(--muted);margin-top:0.2rem;">' + esc(a.city || '') + (a.province ? ', ' + a.province : '') + ' &nbsp;·&nbsp; ' + esc(a.income_range || '') + '</div></div>' +
+        badge(a.status) + '</div>' +
+        statusNote(a.status) +
+        (a.admin_notes ? '<div style="margin-top:0.875rem;padding:0.75rem;background:var(--off);border-radius:5px;font-size:0.83rem;color:var(--ink);">' + esc(a.admin_notes) + '</div>' : '') +
+        '</div>';
+    }).join('');
+  }
+}
+
+function statusNote(status) {
+  var notes = {
+    submitted:  'Your application is in our queue. We review applications in waves and will contact you within 14 days.',
+    pending:    'Your application is in our queue. We review applications in waves and will contact you within 14 days.',
+    reviewing:  'Your application is currently under review by our team.',
+    review:     'Your application is currently under review by our team.',
+    scored:     'Your application has been scored and is being considered.',
+    approved:   'Your application has been approved. We will contact you to arrange the next steps.',
+    matched:    'You have been matched with a vehicle. Expect to hear from us very soon.',
+    delivered:  'Your vehicle has been delivered. Welcome to the community.',
+    declined:   'Your application was not successful at this time. You are welcome to reapply if your circumstances change.',
+    rejected:   'Your application was not successful at this time. You are welcome to reapply if your circumstances change.'
+  };
+  var msg = notes[status];
+  if (!msg) return '';
+  return '<div style="margin-top:0.875rem;font-size:0.8rem;color:var(--muted);line-height:1.6;">' + msg + '</div>';
+}
+
+// ── DONOR MESSAGING ───────────────────────────────────────────────────────
+async function sendDonorMessage(donationId) {
+  var compose = document.getElementById('syc-compose');
+  if (!compose) return;
+  var text = compose.value.trim();
+  if (!text) { showFormMsg('syc-msg', 'Please enter a message.', 'err'); return; }
+
+  var r = await sb.from('vehicle_messages').insert({
+    donation_id: donationId,
+    sender_role: 'donor',
+    sender_id: currentUser.id,
+    message: text
+  });
+
+  if (r.error) {
+    showFormMsg('syc-msg', 'Could not send: ' + r.error.message, 'err');
+  } else {
+    compose.value = '';
+    showFormMsg('syc-msg', 'Message sent.', 'ok');
+    // Reload the SYC section
+    setTimeout(function(){ loadDonorData(); }, 600);
+  }
+}
+
+// ── RECIPIENT MESSAGES ─────────────────────────────────────────────────────
+async function loadRecipientMessages() {
+  var msgEl = document.getElementById('r-messages-content');
+  if (!msgEl) return;
+
+  // Find the recipient's matched application
+  var appsRes = await sb.from('applications').select('id,matched_donation_id').eq('applicant_id', currentUser.id);
+  var apps = appsRes.data || [];
+  var matched = apps.find(function(a){ return a.matched_donation_id; });
+
+  if (!matched) {
+    msgEl.innerHTML = '<div class="card"><div class="empty"><div class="empty-title">No messages yet</div><div class="empty-desc">Messages from your donor family will appear here once you have been matched with a vehicle.</div></div></div>';
+    return;
+  }
+
+  var donationId = matched.matched_donation_id;
+  var msgRes = await sb.from('vehicle_messages').select('*').eq('donation_id', donationId).order('created_at', {ascending:true});
+  var msgs = msgRes.data || [];
+
+  var thread = msgs.map(function(m){
+    var fromDonor = m.sender_role === 'donor';
+    return '<div style="display:flex;flex-direction:column;align-items:' + (fromDonor?'flex-start':'flex-end') + ';margin-bottom:0.875rem;">' +
+      '<div style="max-width:80%;background:' + (fromDonor?'var(--off)':'var(--dark)') + ';color:' + (fromDonor?'var(--ink)':'#fff') + ';border-radius:' + (fromDonor?'12px 12px 12px 4px':'12px 12px 4px 12px') + ';padding:0.75rem 1rem;font-size:0.875rem;line-height:1.6;">' +
+      esc(m.message) + '</div>' +
+      '<div style="font-size:0.7rem;color:var(--muted);margin-top:0.3rem;">' + (fromDonor?'Donor Family':'You') + ' · ' + fmtDate(m.created_at) + '</div></div>';
+  }).join('');
+
+  msgEl.innerHTML =
+    '<div class="card">' +
+    (msgs.length === 0 ? '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.875rem;">The donor family has not sent a message yet. You can reply once they reach out.</div>' : '<div style="margin-bottom:1rem;">' + thread + '</div>') +
+    (msgs.length > 0 ?
+      '<div style="border-top:1px solid var(--border);padding-top:1rem;display:flex;gap:0.75rem;align-items:flex-end;">' +
+        '<textarea id="r-compose" placeholder="Reply to the donor family..." style="flex:1;padding:0.7rem 0.875rem;border:1.5px solid var(--border);border-radius:5px;font-size:0.875rem;font-family:inherit;resize:vertical;min-height:72px;"></textarea>' +
+        '<button class="btn-blue" style="white-space:nowrap;padding:0.7rem 1.25rem;" onclick="sendRecipientReply(\'' + donationId + '\')">Reply</button>' +
+      '</div>' +
+      '<div id="r-compose-msg" class="form-msg" style="margin-top:0.5rem;margin-bottom:0;"></div>'
+    : '') +
+    '</div>';
+}
+
+async function sendRecipientReply(donationId) {
+  var compose = document.getElementById('r-compose');
+  if (!compose) return;
+  var text = compose.value.trim();
+  if (!text) { showFormMsg('r-compose-msg', 'Please enter a message.', 'err'); return; }
+
+  var r = await sb.from('vehicle_messages').insert({
+    donation_id: donationId,
+    sender_role: 'recipient',
+    sender_id: currentUser.id,
+    message: text
+  });
+
+  if (r.error) {
+    showFormMsg('r-compose-msg', 'Could not send: ' + r.error.message, 'err');
+  } else {
+    compose.value = '';
+    showFormMsg('r-compose-msg', 'Reply sent.', 'ok');
+    setTimeout(loadRecipientMessages, 600);
+  }
+}
+
+// ── REPAIR APPLICATION ─────────────────────────────────────────────────────
+async function submitRepairApp() {
+  var make    = document.getElementById('rp-make').value.trim();
+  var model   = document.getElementById('rp-model').value.trim();
+  var year    = document.getElementById('rp-year').value;
+  var mileage = document.getElementById('rp-mileage').value;
+  var issue   = document.getElementById('rp-issue').value.trim();
+  var income  = document.getElementById('rp-income').value;
+  var reason  = document.getElementById('rp-reason').value.trim();
+  var special = document.getElementById('rp-special').value.trim();
+
+  if (!make || !model || !year || !issue || !income || !reason) {
+    showFormMsg('repair-msg', 'Please fill in all required fields.', 'err'); return;
+  }
+
+  // Validate all 8 photos present
+  var repairPhotoCount = 0;
+  for (var i = 0; i < 8; i++) {
+    var rpInp = document.getElementById('rp-ph-' + i);
+    if (rpInp && rpInp.files && rpInp.files[0]) repairPhotoCount++;
+  }
+  if (repairPhotoCount < 8) {
+    showFormMsg('repair-msg', 'Please upload all 8 required vehicle photos before submitting.', 'err'); return;
+  }
+
+  var btn = document.getElementById('repair-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  var r = await sb.from('repair_applications').insert({
+    applicant_id: currentUser.id,
+    applicant_email: currentUser.email,
+    vehicle_make: make,
+    vehicle_model: model,
+    vehicle_year: parseInt(year),
+    vehicle_mileage: mileage ? parseInt(mileage) : null,
+    issue_description: issue,
+    income_range: income,
+    reason: reason,
+    special_circumstances: special || null,
+    status: 'submitted'
+  }).select();
+
+  if (r.error) {
+    showFormMsg('repair-msg', 'Could not submit: ' + r.error.message, 'err');
+    btn.disabled = false; btn.textContent = 'Submit Repair Application';
+  } else {
+    // Upload repair photos
+    var repairAppId = r.data && r.data[0] ? r.data[0].id : null;
+    if (repairAppId) {
+      btn.textContent = 'Uploading photos...';
+      var REPAIR_PHOTO_LABELS = ['front-left','front-right','rear-left','rear-right','passenger-side','driver-side','interior-passenger','interior-driver'];
+      var repairPhotoUrls = [];
+      for (var j = 0; j < 8; j++) {
+        var rpf = document.getElementById('rp-ph-' + j);
+        if (!rpf || !rpf.files || !rpf.files[0]) continue;
+        var rpFile = rpf.files[0];
+        var rpExt = rpFile.name.split('.').pop();
+        var rpPath = 'repairs/' + repairAppId + '/' + REPAIR_PHOTO_LABELS[j] + '.' + rpExt;
+        var rpUp = await sb.storage.from('vehicle-images').upload(rpPath, rpFile, { upsert: true });
+        if (!rpUp.error) {
+          var rpPub = sb.storage.from('vehicle-images').getPublicUrl(rpPath);
+          repairPhotoUrls.push(rpPub.data.publicUrl);
+        }
+      }
+      if (repairPhotoUrls.length > 0) {
+        await sb.from('repair_applications').update({ photo_urls: repairPhotoUrls }).eq('id', repairAppId);
+      }
+    }
+    showFormMsg('repair-msg', 'Application submitted. We will contact you within 14 days to assess the vehicle.', 'ok');
+    ['rp-make','rp-model','rp-year','rp-mileage','rp-issue','rp-reason','rp-special'].forEach(function(id){
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('rp-income').value = '';
+    for (var k = 0; k < 8; k++) {
+      var rpClear = document.getElementById('rp-ph-' + k);
+      if (rpClear) rpClear.value = '';
+      var rpThumb = document.getElementById('rp-thumb-' + k);
+      if (rpThumb) { rpThumb.src = ''; rpThumb.style.display = 'none'; }
+      var rpLbl = document.getElementById('rpLabel-' + k);
+      if (rpLbl) rpLbl.style.display = '';
+    }
+    btn.disabled = false; btn.textContent = 'Submit Repair Application';
+  }
+}
+
+// ── ACCOUNT SETTINGS ─────────────────────────────────────────────────────
+function initAccountSettings() {
+  // donor view
+  var emailEl = document.getElementById('acct-current-email');
+  if (emailEl && currentUser) emailEl.textContent = currentUser.email || '—';
+  // recipient view
+  var rEmailEl = document.getElementById('r-acct-current-email');
+  if (rEmailEl && currentUser) rEmailEl.textContent = currentUser.email || '—';
+  loadDisplayPrefs();
+  check2FAStatus();
+}
+
+async function changeEmail() {
+  var newEmail = (document.getElementById('acct-new-email') || {}).value.trim();
+  if (!newEmail) { showFormMsg('acct-email-msg', 'Please enter a new email address.', 'err'); return; }
+  var r = await sb.auth.updateUser({ email: newEmail });
+  if (r.error) {
+    showFormMsg('acct-email-msg', 'Could not update email: ' + r.error.message, 'err');
+  } else {
+    showFormMsg('acct-email-msg', 'Confirmation sent to ' + newEmail + '. Check your inbox to confirm the change.', 'ok');
+    document.getElementById('acct-new-email').value = '';
+  }
+}
+
+async function changePassword() {
+  var pw  = (document.getElementById('acct-new-pw') || {}).value;
+  var pw2 = (document.getElementById('acct-confirm-pw') || {}).value;
+  if (!pw || pw.length < 8) { showFormMsg('acct-pw-msg', 'Password must be at least 8 characters.', 'err'); return; }
+  if (pw !== pw2) { showFormMsg('acct-pw-msg', 'Passwords do not match.', 'err'); return; }
+  var r = await sb.auth.updateUser({ password: pw });
+  if (r.error) {
+    showFormMsg('acct-pw-msg', 'Could not update password: ' + r.error.message, 'err');
+  } else {
+    showFormMsg('acct-pw-msg', 'Password updated successfully.', 'ok');
+    document.getElementById('acct-new-pw').value = '';
+    document.getElementById('acct-confirm-pw').value = '';
+  }
+}
+
+function saveDisplayPrefs() {
+  try {
+    var prefs = {
+      highContrast: document.getElementById('pref-highcontrast') ? document.getElementById('pref-highcontrast').checked : false,
+      darkMode:     document.getElementById('pref-darkmode')     ? document.getElementById('pref-darkmode').checked     : false,
+      largeText:    document.getElementById('pref-largetext')    ? document.getElementById('pref-largetext').checked    : false,
+    };
+    localStorage.setItem('ec_display_prefs', JSON.stringify(prefs));
+    applyDisplayPrefs(prefs);
+    showFormMsg('acct-pref-msg', 'Preferences saved.', 'ok');
+    setTimeout(function(){ clearFormMsg('acct-pref-msg'); }, 2000);
+  } catch(e) {}
+}
+
+function loadDisplayPrefs() {
+  try {
+    var raw = localStorage.getItem('ec_display_prefs');
+    if (!raw) return;
+    var prefs = JSON.parse(raw);
+    // donor checkboxes
+    if (document.getElementById('pref-highcontrast')) document.getElementById('pref-highcontrast').checked = !!prefs.highContrast;
+    if (document.getElementById('pref-darkmode'))     document.getElementById('pref-darkmode').checked     = !!prefs.darkMode;
+    if (document.getElementById('pref-largetext'))    document.getElementById('pref-largetext').checked    = !!prefs.largeText;
+    // recipient checkboxes
+    if (document.getElementById('r-pref-highcontrast')) document.getElementById('r-pref-highcontrast').checked = !!prefs.highContrast;
+    if (document.getElementById('r-pref-darkmode'))     document.getElementById('r-pref-darkmode').checked     = !!prefs.darkMode;
+    if (document.getElementById('r-pref-largetext'))    document.getElementById('r-pref-largetext').checked    = !!prefs.largeText;
+    applyDisplayPrefs(prefs);
+  } catch(e) {}
+}
+
+// Recipient account settings wrappers
+async function changeEmailR() {
+  var newEmail = (document.getElementById('r-acct-new-email') || {}).value.trim();
+  if (!newEmail) { showFormMsg('r-acct-email-msg', 'Please enter a new email address.', 'err'); return; }
+  var r = await sb.auth.updateUser({ email: newEmail });
+  if (r.error) {
+    showFormMsg('r-acct-email-msg', 'Could not update email: ' + r.error.message, 'err');
+  } else {
+    showFormMsg('r-acct-email-msg', 'Confirmation sent to ' + newEmail + '. Check your inbox to confirm the change.', 'ok');
+    document.getElementById('r-acct-new-email').value = '';
+  }
+}
+
+async function changePasswordR() {
+  var pw  = (document.getElementById('r-acct-new-pw') || {}).value;
+  var pw2 = (document.getElementById('r-acct-confirm-pw') || {}).value;
+  if (!pw || pw.length < 8) { showFormMsg('r-acct-pw-msg', 'Password must be at least 8 characters.', 'err'); return; }
+  if (pw !== pw2) { showFormMsg('r-acct-pw-msg', 'Passwords do not match.', 'err'); return; }
+  var r = await sb.auth.updateUser({ password: pw });
+  if (r.error) {
+    showFormMsg('r-acct-pw-msg', 'Could not update password: ' + r.error.message, 'err');
+  } else {
+    showFormMsg('r-acct-pw-msg', 'Password updated successfully.', 'ok');
+    document.getElementById('r-acct-new-pw').value = '';
+    document.getElementById('r-acct-confirm-pw').value = '';
+  }
+}
+
+function saveDisplayPrefsR() {
+  try {
+    var prefs = {
+      highContrast: document.getElementById('r-pref-highcontrast') ? document.getElementById('r-pref-highcontrast').checked : false,
+      darkMode:     document.getElementById('r-pref-darkmode')     ? document.getElementById('r-pref-darkmode').checked     : false,
+      largeText:    document.getElementById('r-pref-largetext')    ? document.getElementById('r-pref-largetext').checked    : false,
+    };
+    localStorage.setItem('ec_display_prefs', JSON.stringify(prefs));
+    applyDisplayPrefs(prefs);
+  } catch(e) {}
+}
+
+function applyDisplayPrefs(prefs) {
+  var b = document.body;
+  b.classList.toggle('ec-highcontrast', !!prefs.highContrast);
+  b.classList.toggle('ec-darkmode',     !!prefs.darkMode);
+  b.classList.toggle('ec-largetext',    !!prefs.largeText);
+}
+
+async function check2FAStatus() {
+  var statusEl = document.getElementById('acct-2fa-status');
+  var btnEl    = document.getElementById('acct-2fa-btn');
+  if (!statusEl) return;
+  try {
+    var r = await sb.auth.mfa.listFactors();
+    var factors = (r.data && r.data.totp) || [];
+    var verified = factors.filter(function(f){ return f.status === 'verified'; });
+    if (verified.length > 0) {
+      statusEl.innerHTML = '<span style="color:var(--green);font-weight:600;">&#10003; Two-factor authentication is enabled.</span>';
+      if (btnEl) { btnEl.textContent = 'Disable Two-Factor Authentication'; btnEl.style.display = ''; btnEl.style.background = 'var(--red)'; }
+    } else {
+      statusEl.textContent = 'Two-factor authentication is not enabled.';
+      if (btnEl) { btnEl.textContent = 'Enable Two-Factor Authentication'; btnEl.style.display = ''; btnEl.style.background = ''; }
+    }
+  } catch(e) {
+    statusEl.textContent = 'Could not check 2FA status.';
+  }
+}
+
+async function toggle2FA() {
+  var btnEl = document.getElementById('acct-2fa-btn');
+  if (!btnEl) return;
+  try {
+    var r = await sb.auth.mfa.listFactors();
+    var factors = (r.data && r.data.totp) || [];
+    var verified = factors.filter(function(f){ return f.status === 'verified'; });
+    if (verified.length > 0) {
+      // Unenroll
+      var unenrollRes = await sb.auth.mfa.unenroll({ factorId: verified[0].id });
+      if (unenrollRes.error) { showFormMsg('acct-2fa-msg', 'Could not disable 2FA: ' + unenrollRes.error.message, 'err'); return; }
+      showFormMsg('acct-2fa-msg', '2FA has been disabled.', 'ok');
+      check2FAStatus();
+    } else {
+      // Clear any unverified (pending) factor first — Supabase only allows one per friendly name
+      var unverified = factors.filter(function(f){ return f.status !== 'verified'; });
+      for (var ui = 0; ui < unverified.length; ui++) {
+        await sb.auth.mfa.unenroll({ factorId: unverified[ui].id });
+      }
+      // Enroll — show QR challenge
+      var enrollRes = await sb.auth.mfa.enroll({ factorType: 'totp', issuer: 'Effective Care', friendlyName: 'Authenticator' });
+      if (enrollRes.error) { showFormMsg('acct-2fa-msg', 'Could not start 2FA setup: ' + enrollRes.error.message, 'err'); return; }
+      var totp = enrollRes.data.totp;
+      var factorId = enrollRes.data.id;
+      var qrHtml =
+        '<div style="margin-top:1rem;padding:1rem;background:var(--off);border-radius:8px;border:1px solid var(--border);">' +
+        '<p style="font-size:0.875rem;margin-bottom:0.75rem;font-weight:600;">Scan this QR code with your authenticator app (e.g. Google Authenticator, Authy):</p>' +
+        '<img src="' + totp.qr_code + '" style="width:180px;height:180px;display:block;margin-bottom:0.875rem;" alt="2FA QR code"/>' +
+        '<p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.875rem;">Or enter the secret manually: <strong style="font-family:monospace;">' + totp.secret + '</strong></p>' +
+        '<div class="pf-field"><label style="font-size:0.82rem;">Enter the 6-digit code from your app to confirm:</label>' +
+        '<input type="text" id="totp-code" maxlength="6" placeholder="123456" style="width:160px;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:1.1rem;font-family:monospace;letter-spacing:0.2em;outline:none;" /></div>' +
+        '<button class="btn-blue" style="margin-top:0.75rem;" onclick="verify2FA(\'' + factorId + '\')">Verify &amp; Enable</button>' +
+        '</div>';
+      var msgEl = document.getElementById('acct-2fa-msg');
+      if (msgEl) msgEl.innerHTML = qrHtml;
+    }
+  } catch(e) {
+    showFormMsg('acct-2fa-msg', 'An error occurred. Please try again.', 'err');
+  }
+}
+
+async function verify2FA(factorId) {
+  var code = (document.getElementById('totp-code') || {}).value.trim();
+  if (!code || code.length !== 6) { showFormMsg('acct-2fa-msg', 'Please enter the 6-digit code.', 'err'); return; }
+  var challengeRes = await sb.auth.mfa.challenge({ factorId: factorId });
+  if (challengeRes.error) { showFormMsg('acct-2fa-msg', 'Challenge error: ' + challengeRes.error.message, 'err'); return; }
+  var verifyRes = await sb.auth.mfa.verify({ factorId: factorId, challengeId: challengeRes.data.id, code: code });
+  if (verifyRes.error) {
+    showFormMsg('acct-2fa-msg', 'Incorrect code. Please try again.', 'err');
+  } else {
+    document.getElementById('acct-2fa-msg').innerHTML = '';
+    showFormMsg('acct-2fa-msg', 'Two-factor authentication has been enabled!', 'ok');
+    check2FAStatus();
+  }
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  var d = new Date(iso);
+  return d.toLocaleDateString('en-CA', {year:'numeric',month:'short',day:'numeric'});
+}
+function badge(status) {
+  if (!status) return '';
+  var labels = {submitted:'Submitted',pending:'Pending',reviewing:'Under Review',review:'Under Review',scored:'Scored',approved:'Approved',matched:'Matched',delivered:'Delivered',declined:'Not Selected',rejected:'Not Selected',placed:'Placed',received:'Received',inspecting:'Inspecting',certified:'Certified'};
+  // Map statuses to badge colour classes
+  var cls = {submitted:'review',pending:'pending',reviewing:'review',review:'review',scored:'review',approved:'approved',matched:'matched',delivered:'placed',declined:'rejected',rejected:'rejected',placed:'placed',received:'pending',inspecting:'review',certified:'approved'};
+  return '<span class="badge badge-' + (cls[status]||status) + '">' + (labels[status] || status) + '</span>';
+}
+function showFormMsg(id, msg, type) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg; el.className = 'form-msg ' + type;
+}
+function clearFormMsg(id) {
+  var el = document.getElementById(id);
+  if (el) el.className = 'form-msg';
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// ── FORGOT PASSWORD / OTP ───────────────────────────────────────────────
+var EJS_SERVICE  = 'service_17i6wxf';
+var EJS_TEMPLATE = 'template_u3lbm0a';
+var EJS_KEY      = 'lXUFuzJDdnUj5jvOE';
+var _otpEmail = '';
+var _otpCode  = '';
+
+(function(){ if (typeof emailjs !== 'undefined') emailjs.init(EJS_KEY); })();
+
+function showSignIn() {
+  ['pane-in','pane-up','pane-forgot','pane-otp','pane-newpass'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  document.getElementById('pane-in').style.display = 'block';
+  document.getElementById('tab-in').classList.add('active');
+  document.getElementById('tab-up').classList.remove('active');
+  clearMsg();
+}
+
+function showForgotPassword() {
+  ['pane-in','pane-up','pane-forgot','pane-otp','pane-newpass'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  document.getElementById('pane-forgot').style.display = 'block';
+  clearMsg();
+}
+
+async function sendOTP() {
+  var email = document.getElementById('fp-email').value.trim();
+  if (!email) { showMsg('Please enter your email.', 'err'); return; }
+  _otpEmail = email;
+  _otpCode  = Math.floor(100000 + Math.random() * 900000).toString();
+  var btn = document.getElementById('fp-btn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    if (typeof emailjs === 'undefined') throw new Error('EmailJS not loaded');
+    await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+      to_email: email,
+      passcode: _otpCode,
+      to_name:  email
+    });
+    document.getElementById('pane-forgot').style.display = 'none';
+    document.getElementById('pane-otp').style.display = 'block';
+    showMsg('Code sent — check your inbox (and spam folder).', 'ok');
+  } catch(e) {
+    showMsg('Could not send email: ' + (e.text || e.message || JSON.stringify(e)) + '. Contact info@effectivecare.ca.', 'err');
+    btn.disabled = false; btn.textContent = 'Send Reset Code';
+  }
+}
+
+function verifyOTP() {
+  var entered = (document.getElementById('otp-code').value || '').trim();
+  if (!entered) { showMsg('Please enter the code from your email.', 'err'); return; }
+  if (entered !== _otpCode) { showMsg('That code is incorrect. Please try again.', 'err'); return; }
+  document.getElementById('pane-otp').style.display = 'none';
+  document.getElementById('pane-newpass').style.display = 'block';
+  clearMsg();
+}
+
+async function resetPassword() {
+  var pass  = document.getElementById('np-pass').value;
+  var pass2 = document.getElementById('np-pass2').value;
+  if (pass.length < 8) { showMsg('Password must be at least 8 characters.', 'err'); return; }
+  if (pass !== pass2)  { showMsg('Passwords do not match.', 'err'); return; }
+  var btn = document.getElementById('np-btn');
+  btn.disabled = true; btn.textContent = 'Updating...';
+  var u = await sb.auth.updateUser({ password: pass });
+  if (!u.error) {
+    showMsg('Password updated! Signing you in...', 'ok');
+    setTimeout(function(){ if (currentUser) enterPortal(); else showSignIn(); }, 1200);
+    return;
+  }
+  var r2 = await sb.auth.resetPasswordForEmail(_otpEmail, {
+    redirectTo: window.location.origin + '/portal.html'
+  });
+  if (r2.error) {
+    showMsg('Could not reset password. Please email info@effectivecare.ca.', 'err');
+    btn.disabled = false; btn.textContent = 'Set New Password';
+    return;
+  }
+  showMsg('A reset link was sent to your email. Click it to set your new password.', 'ok');
+  btn.disabled = false; btn.textContent = 'Set New Password';
+}
+</script>
+<script src="main.js"></script>
+</body>
+</html>

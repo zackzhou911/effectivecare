@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin | Effective Care</title>
+<link rel="icon" type="image/png" href="favicon.png"/>
+<style>
+:root {
+  --navy:#0b1f3a; --dark:#112240; --blue:#2563eb; --blue2:#1d4ed8;
+  --sky:#60a5fa; --ink:#0f172a; --muted:#64748b; --off:#f8fafc;
+  --white:#ffffff; --border:#e2e8f0; --green:#16a34a; --red:#dc2626;
+  --amber:#d97706; --sidebar:240px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--off); color: var(--ink); min-height: 100vh; }
+
+/* ── LOCK SCREEN ── */
+#lockScreen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--navy);
+}
+.lock-box {
+  background: #fff; border-radius: 12px; padding: 2.5rem 2.5rem 2rem;
+  width: 100%; max-width: 380px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+}
+.lock-logo { font-size: 1.05rem; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+.lock-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 2rem; }
+.lock-label { font-size: 0.78rem; font-weight: 600; color: var(--ink); margin-bottom: 0.45rem; display: block; text-transform: uppercase; letter-spacing: 0.06em; }
+.lock-input {
+  width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border);
+  border-radius: 6px; font-size: 1rem; outline: none; transition: border-color 0.15s;
+  font-family: monospace; letter-spacing: 0.06em;
+}
+.lock-input:focus { border-color: var(--blue); }
+.lock-btn {
+  width: 100%; margin-top: 1.25rem; padding: 0.8rem;
+  background: var(--navy); color: #fff; border: none; border-radius: 6px;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.lock-btn:hover { background: var(--dark); }
+.lock-err { font-size: 0.82rem; color: var(--red); margin-top: 0.75rem; display: none; text-align: center; }
+.lock-err.show { display: block; }
+
+/* ── ADMIN APP ── */
+#adminApp { display: none; min-height: 100vh; }
+#adminApp.active { display: flex; }
+
+/* SIDEBAR */
+.admin-sidebar {
+  width: var(--sidebar); flex-shrink: 0; background: var(--navy);
+  display: flex; flex-direction: column; min-height: 100vh; position: fixed; top: 0; left: 0; bottom: 0; z-index: 50;
+}
+.sidebar-brand {
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-brand-name { color: #fff; font-size: 1rem; font-weight: 800; letter-spacing: -0.02em; }
+.sidebar-brand-tag { color: rgba(255,255,255,0.38); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.2rem; }
+.sidebar-nav { padding: 1rem 0; flex: 1; }
+.sidebar-nav a {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.65rem 1.25rem; font-size: 0.88rem; color: rgba(255,255,255,0.65);
+  cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; text-decoration: none;
+}
+.sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.sidebar-nav a.active { color: #fff; background: rgba(255,255,255,0.1); border-left-color: var(--sky); }
+.sidebar-nav .nav-icon { font-size: 1rem; width: 18px; text-align: center; flex-shrink: 0; }
+.sidebar-section { padding: 0.5rem 1.25rem 0.25rem; font-size: 0.65rem; color: rgba(255,255,255,0.28); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.5rem; }
+.sidebar-bottom {
+  padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-user-name { color: rgba(255,255,255,0.75); font-size: 0.82rem; font-weight: 600; }
+.sidebar-logout {
+  font-size: 0.75rem; color: rgba(255,255,255,0.4); background: none;
+  border: none; cursor: pointer; padding: 0.35rem 0.6rem; border-radius: 4px;
+  transition: all 0.15s;
+}
+.sidebar-logout:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+/* MAIN */
+.admin-main {
+  margin-left: var(--sidebar); flex: 1; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+.admin-topbar {
+  background: #fff; border-bottom: 1px solid var(--border);
+  padding: 0 2rem; height: 56px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 40;
+}
+.topbar-title { font-size: 1rem; font-weight: 700; color: var(--ink); }
+.topbar-badge {
+  font-size: 0.72rem; background: var(--blue); color: #fff;
+  padding: 0.25rem 0.65rem; border-radius: 20px; font-weight: 600; letter-spacing: 0.04em;
+}
+.admin-content { padding: 2rem; flex: 1; }
+
+/* VIEWS */
+.view { display: none; }
+.view.active { display: block; }
+.view-title { font-size: 1.5rem; font-weight: 800; color: var(--ink); margin-bottom: 0.3rem; letter-spacing: -0.02em; }
+.view-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; }
+
+/* STAT GRID */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.stat-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; }
+.stat-n { font-size: 2.2rem; font-weight: 800; color: var(--blue); line-height: 1; font-family: Georgia, serif; }
+.stat-l { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; font-weight: 500; }
+
+/* CARDS */
+.card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.25rem; }
+.card-title { font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 1rem; }
+
+/* TABLES */
+.tbl-wrap { overflow-x: auto; }
+table.dtbl { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+table.dtbl th { text-align: left; padding: 0.6rem 0.875rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); border-bottom: 1.5px solid var(--border); }
+table.dtbl td { padding: 0.75rem 0.875rem; border-bottom: 1px solid var(--border); color: var(--ink); vertical-align: middle; }
+table.dtbl tr:last-child td { border-bottom: none; }
+table.dtbl tr:hover td { background: #f8fafc; }
+
+/* BADGES */
+.badge { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 0.22rem 0.55rem; border-radius: 20px; }
+.badge-received,.badge-submitted { background: #eff6ff; color: #1d4ed8; }
+.badge-inspecting,.badge-reviewing { background: #fefce8; color: #854d0e; }
+.badge-certified,.badge-scored { background: #f0fdf4; color: #15803d; }
+.badge-matched { background: #fdf4ff; color: #7e22ce; }
+.badge-delivered,.badge-approved { background: #f0fdf4; color: #15803d; }
+.badge-rejected,.badge-declined { background: #fef2f2; color: #b91c1c; }
+.badge-pending { background: #fefce8; color: #854d0e; }
+
+/* STATUS SELECTOR */
+.status-sel {
+  font-size: 0.78rem; border: 1px solid var(--border); border-radius: 4px;
+  padding: 0.3rem 0.5rem; background: #fff; cursor: pointer; color: var(--ink);
+}
+
+/* MATCH PANEL */
+.match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.match-col-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.75rem; }
+.match-item {
+  padding: 0.875rem 1rem; border: 1.5px solid var(--border); border-radius: 8px;
+  margin-bottom: 0.6rem; cursor: pointer; transition: all 0.15s; font-size: 0.875rem;
+}
+.match-item:hover { border-color: var(--blue); background: #eff6ff; }
+.match-item.selected { border-color: var(--blue); background: #eff6ff; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+.match-item-title { font-weight: 700; color: var(--ink); }
+.match-item-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+.match-action-bar { margin-top: 1.25rem; display: flex; align-items: center; gap: 1rem; }
+.btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.65rem 1.25rem; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none; }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: var(--blue2); }
+.btn-secondary { background: #fff; color: var(--ink); border: 1.5px solid var(--border); }
+.btn-secondary:hover { border-color: var(--blue); color: var(--blue); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+.btn-danger-sm { background: var(--red); color: #fff; padding: 0.3rem 0.65rem; font-size: 0.72rem; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; margin-left: 0.35rem; transition: opacity 0.15s; }
+.btn-danger-sm:hover { opacity: 0.85; }
+
+/* CONFIRM MODAL */
+#confirmModal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.45); align-items: center; justify-content: center; }
+#confirmModal.active { display: flex; }
+.confirm-box { background: #fff; border-radius: 10px; padding: 2rem 2rem 1.5rem; max-width: 380px; width: calc(100% - 2rem); box-shadow: 0 16px 48px rgba(0,0,0,0.2); }
+.confirm-box.wide { max-width: 560px; }
+.confirm-body { max-height: 65vh; overflow-y: auto; }
+.confirm-title { font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 0.5rem; }
+.confirm-body { font-size: 0.875rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.5; }
+.confirm-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+/* SUB-TABS */
+.sub-tabs { display: flex; gap: 0; border-bottom: 1.5px solid var(--border); margin-bottom: 1.5rem; }
+.sub-tab { padding: 0.55rem 1.25rem; font-size: 0.82rem; font-weight: 600; color: var(--muted); background: none; border: none; cursor: pointer; border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; transition: all 0.15s; font-family: inherit; }
+.sub-tab:hover { color: var(--ink); }
+.sub-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.sub-pane { display: none; }
+.sub-pane.active { display: block; }
+
+.match-result { padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.875rem; display: none; }
+.match-result.success { background: #f0fdf4; color: var(--green); border: 1px solid #bbf7d0; display: block; }
+.match-result.error { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; display: block; }
+
+/* SEE YOUR CAR */
+.update-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-field { margin-bottom: 1rem; }
+.form-field label { display: block; font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.4rem; }
+.form-field input, .form-field select, .form-field textarea {
+  width: 100%; padding: 0.65rem 0.875rem; border: 1.5px solid var(--border);
+  border-radius: 6px; font-size: 0.9rem; font-family: inherit; outline: none;
+  transition: border-color 0.15s; background: #fff; color: var(--ink);
+}
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--blue); }
+.form-field textarea { min-height: 90px; resize: vertical; }
+.syc-log { margin-top: 1.5rem; }
+.syc-entry { padding: 0.875rem 1rem; border-left: 3px solid var(--blue); background: #eff6ff; border-radius: 0 6px 6px 0; margin-bottom: 0.6rem; }
+.syc-meta { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.25rem; }
+.syc-msg { font-size: 0.875rem; color: var(--ink); font-style: italic; }
+
+/* EMPTY */
+.empty-state { text-align: center; padding: 3rem 1rem; }
+.empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.empty-title { font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 0.35rem; }
+.empty-body { font-size: 0.875rem; color: var(--muted); }
+
+/* TOAST */
+#toast {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+  background: var(--ink); color: #fff; padding: 0.75rem 1.25rem;
+  border-radius: 8px; font-size: 0.875rem; opacity: 0;
+  transform: translateY(8px); transition: all 0.25s; pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── 2FA SCREEN ── */
+#twoFAScreen {
+  min-height: 100vh; display: none; align-items: center; justify-content: center;
+  background: var(--navy);
+}
+#twoFAScreen.active { display: flex; }
+.otp-box {
+  background: #fff; border-radius: 12px; padding: 2.5rem 2rem 2rem;
+  width: calc(100% - 2rem); max-width: 400px; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+.otp-title { font-size: 1.05rem; font-weight: 800; color: var(--navy); margin-bottom: 0.25rem; }
+.otp-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.75rem; line-height: 1.5; }
+.otp-select {
+  width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border);
+  border-radius: 6px; font-size: 0.95rem; outline: none; background: #fff;
+  color: var(--ink); margin-bottom: 1rem; cursor: pointer; transition: border-color 0.15s;
+  font-family: inherit;
+}
+.otp-select:focus { border-color: var(--blue); }
+.otp-code-input {
+  width: 180px; display: block; margin: 1rem auto; padding: 0.75rem 0.5rem;
+  text-align: center; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.25em;
+  font-family: monospace; border: 1.5px solid var(--border); border-radius: 6px;
+  outline: none; transition: border-color 0.15s;
+}
+.otp-code-input:focus { border-color: var(--blue); }
+.otp-code-section { display: none; }
+.otp-code-section.visible { display: block; }
+.otp-sent-note { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.25rem; }
+.otp-resend { font-size: 0.8rem; color: var(--blue); background: none; border: none;
+  cursor: pointer; padding: 0; text-decoration: underline; font-family: inherit; }
+
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .admin-sidebar { width: 100%; height: auto; min-height: unset; position: relative; flex-direction: row; flex-wrap: wrap; }
+  .admin-main { margin-left: 0; }
+  .match-grid { grid-template-columns: 1fr; }
+  .update-form .form-row { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+<script defer data-domain="effectivecare.ca" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-logo">Effective Care</div>
+    <div class="lock-sub">Admin panel — restricted access</div>
+    <label class="lock-label" for="passInput">Admin passphrase</label>
+    <input type="password" id="passInput" class="lock-input" placeholder="Enter passphrase" autocomplete="off" autofocus/>
+    <button class="lock-btn" onclick="tryUnlock()">Sign In</button>
+    <div class="lock-err" id="lockErr">Incorrect passphrase. Try again.</div>
+  </div>
+</div>
+
+
+<!-- 2FA SCREEN -->
+<div id="twoFAScreen">
+  <div class="otp-box">
+    <div class="otp-title">Verify your identity</div>
+    <div class="otp-sub">Choose an email address to receive a one-time verification code.</div>
+
+    <select class="otp-select" id="otpEmailSelect">
+      <option value="">Select email address...</option>
+      <option value="zackzhou911@gmail.com">zackzhou911@gmail.com</option>
+      <option value="info@effectivecare.ca">info@effectivecare.ca</option>
+    </select>
+    <button class="lock-btn" id="otpSendBtn" onclick="sendOtp()">Send Code</button>
+    <div class="lock-err" id="otpSendErr"></div>
+
+    <div class="otp-code-section" id="otpCodeSection">
+      <div class="otp-sent-note" id="otpSentNote"></div>
+      <input type="text" inputmode="numeric" maxlength="6" id="otpCodeInput"
+        class="otp-code-input" placeholder="000000" autocomplete="one-time-code"
+        oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6)"
+        onkeydown="if(event.key==='Enter')verifyOtp()"/>
+      <button class="lock-btn" id="otpVerifyBtn" onclick="verifyOtp()">Verify Code</button>
+      <div class="lock-err" id="otpVerifyErr"></div>
+      <div style="margin-top:1rem;text-align:center;">
+        <button class="otp-resend" onclick="sendOtp(true)">Resend code</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="adminApp">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-name">Effective Care</div>
+      <div class="sidebar-brand-tag">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Overview</div>
+      <a onclick="showView('dashboard')" class="active" id="nav-dashboard">
+        <span class="nav-icon">&#9781;</span> Dashboard
+      </a>
+      <div class="sidebar-section">Vehicles</div>
+      <a onclick="showView('donations')" id="nav-donations">
+        <span class="nav-icon"></span> Donations
+      </a>
+      <a onclick="showView('matching')" id="nav-matching">
+        <span class="nav-icon"></span> Matching
+      </a>
+      <a onclick="showView('carsneeding')" id="nav-carsneeding">
+        <span class="nav-icon"></span> Cars Needing Work
+      </a>
+      <div class="sidebar-section">People</div>
+      <a onclick="showView('applications')" id="nav-applications">
+        <span class="nav-icon"></span> Applications
+      </a>
+      <a onclick="showView('repair')" id="nav-repair">
+        <span class="nav-icon"></span> Repair Applications
+      </a>
+      <div class="sidebar-section">Content</div>
+      <a onclick="showView('testimonials')" id="nav-testimonials">
+        <span class="nav-icon">&#11088;</span> Testimonials
+      </a>
+      <a onclick="showView('team')" id="nav-team">
+        <span class="nav-icon">&#128100;</span> Team Members
+      </a>
+      <a onclick="showView('sponsors')" id="nav-sponsors">
+        <span class="nav-icon">&#127970;</span> Sponsors
+      </a>
+      <a onclick="showView('stats')" id="nav-stats">
+        <span class="nav-icon"></span> Live Stats
+      </a>
+      <div class="sidebar-section">Donor Connect</div>
+      <a onclick="showView('seeyourcar')" id="nav-seeyourcar">
+        <span class="nav-icon"></span> See Your Car
+      </a>
+
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user-name">Admin</div>
+      <a href="index.html" class="sidebar-logout" style="display:block;text-align:center;text-decoration:none;margin-bottom:0.5rem;">&#8592; Back to site</a>
+      <button class="sidebar-logout" onclick="logout()">Sign out</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <span class="topbar-badge">ADMIN</span>
+    </div>
+    <div class="admin-content">
+
+      <!-- DASHBOARD -->
+      <div class="view active" id="view-dashboard">
+        <div class="view-title">Dashboard</div>
+        <div class="view-sub">Overview of all activity across Effective Care.</div>
+        <div class="stat-grid" id="dash-stats">
+          <div class="stat-card"><div class="stat-n" id="s-donations">-</div><div class="stat-l">Total donations</div></div>
+          <div class="stat-card"><div class="stat-n" id="s-certified">-</div><div class="stat-l">Certified &amp; ready</div></div>
+          <div class="stat-card"><div class="stat-n" id="s-applications">-</div><div class="stat-l">Total applications</div></div>
+          <div class="stat-card"><div class="stat-n" id="s-matched">-</div><div class="stat-l">Matched pairs</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Donations</div>
+          <div class="tbl-wrap" id="recent-donations-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Applications</div>
+          <div class="tbl-wrap" id="recent-apps-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- DONATIONS -->
+      <div class="view" id="view-donations">
+        <div class="view-title">Donations</div>
+        <div class="view-sub">All donations received by Effective Care.</div>
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="dtab-vehicles" onclick="showDonationTab('vehicles')"> Vehicles</button>
+          <button class="sub-tab" id="dtab-cash" onclick="showDonationTab('cash')"> Cash</button>
+          <button class="sub-tab" id="dtab-labour" onclick="showDonationTab('labour')"> Volunteer Labour</button>
+        </div>
+        <!-- Vehicles sub-pane -->
+        <div class="sub-pane active" id="dpane-vehicles">
+          <div class="card">
+            <div class="card-title">Vehicle Donations — sorted by status</div>
+            <div class="tbl-wrap" id="all-donations-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+          </div>
+        </div>
+        <!-- Cash sub-pane -->
+        <div class="sub-pane" id="dpane-cash">
+          <div class="card">
+            <div class="card-title">Cash Donations</div>
+            <div class="tbl-wrap" id="cash-donations-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+          </div>
+        </div>
+        <!-- Volunteer Labour sub-pane -->
+        <div class="sub-pane" id="dpane-labour">
+          <div class="card">
+            <div class="card-title">Volunteer Labour Requests</div>
+            <div class="tbl-wrap" id="labour-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPLICATIONS -->
+      <div class="view" id="view-applications">
+        <div class="view-title">Recipient Applications</div>
+        <div class="view-sub">All applicants and their review status.</div>
+        <div class="card">
+          <div class="tbl-wrap" id="all-apps-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- MATCHING -->
+      <div class="view" id="view-matching">
+        <div class="view-title">Vehicle Matching</div>
+        <div class="view-sub">Select a certified vehicle and an approved applicant to create a match.</div>
+        <div class="match-grid">
+          <div>
+            <div class="match-col-title"> Certified vehicles (available)</div>
+            <div id="match-vehicles"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+          </div>
+          <div>
+            <div class="match-col-title"> Approved applicants</div>
+            <div id="match-applicants"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+          </div>
+        </div>
+        <div class="match-action-bar">
+          <button class="btn btn-primary" onclick="confirmMatch()">Create Match</button>
+          <span style="font-size:0.82rem;color:var(--muted);" id="match-hint">Select one vehicle and one applicant above.</span>
+        </div>
+        <div class="match-result" id="match-result"></div>
+        <div class="card" style="margin-top:1.5rem;">
+          <div class="card-title">Current Matches</div>
+          <div class="tbl-wrap" id="current-matches-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- SEE YOUR CAR -->
+      <div class="view" id="view-seeyourcar">
+        <div class="view-title">See Your Car Updates</div>
+        <div class="view-sub">Post anonymized updates to donor dashboards on behalf of recipient families.</div>
+        <div class="card">
+          <div class="card-title">Post a New Update</div>
+          <div class="update-form">
+            <div class="form-row">
+              <div class="form-field">
+                <label>Vehicle / Donation</label>
+                <select id="syc-vehicle"><option value="">Loading donations...</option></select>
+              </div>
+              <div class="form-field">
+                <label>Milestone label</label>
+                <input type="text" id="syc-milestone" placeholder="e.g. Month 3 · New job secured"/>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Message from recipient (anonymized)</label>
+              <textarea id="syc-message" placeholder="&quot;We drove to school registration the same day...&quot;"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label>Uses (comma-separated)</label>
+                <input type="text" id="syc-uses" placeholder="job commute, school drop-off, medical"/>
+              </div>
+              <div class="form-field">
+                <label>Months in use</label>
+                <input type="number" id="syc-months" placeholder="3" min="0"/>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="postSycUpdate()">Post Update</button>
+          </div>
+        </div>
+        <div class="card syc-log">
+          <div class="card-title">Recent Updates Posted</div>
+          <div id="syc-history"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+
+      <!-- CARS NEEDING WORK -->
+      <div class="view" id="view-carsneeding">
+        <div class="view-title">Cars Needing Work</div>
+        <div class="view-sub">Vehicles that need repairs before placement. Shown publicly at /cars.html after approval.</div>
+        <div class="card">
+          <div class="card-title">Add Car Needing Work</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="form-field"><label>Make</label><input type="text" id="cnw-make" placeholder="Toyota" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+            <div class="form-field"><label>Model</label><input type="text" id="cnw-model" placeholder="Corolla" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="form-field"><label>Year</label><input type="number" id="cnw-year" placeholder="2009" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+            <div class="form-field"><label>Mileage (km)</label><input type="number" id="cnw-mileage" placeholder="180000" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+            <div class="form-field"><label>Status</label>
+              <select id="cnw-status" style="width:100%;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;background:#fff;color:var(--ink);outline:none;">
+                <option value="pending">Pending approval</option>
+                <option value="approved">Approved (public)</option>
+                <option value="fixed">Fixed — remove from site</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field"><label>What needs fixing</label><textarea id="cnw-needs" style="width:100%;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;resize:vertical;min-height:80px;outline:none;" placeholder="e.g. Brakes, oil leak, transmission slipping"></textarea></div>
+          <div class="form-field">
+            <label>Photo (optional — PNG or JPG)</label>
+            <div id="cnw-img-wrap" style="border:1.5px dashed var(--border);border-radius:6px;padding:1rem;text-align:center;cursor:pointer;background:var(--off);position:relative;" onclick="document.getElementById('cnw-img-file').click()">
+              <input type="file" id="cnw-img-file" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="previewCnwImage(this)"/>
+              <img id="cnw-img-preview" src="" style="display:none;max-height:120px;max-width:100%;border-radius:4px;margin-bottom:0.5rem;"/>
+              <div id="cnw-img-label" style="font-size:0.82rem;color:var(--muted);">Click to upload a photo</div>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="addCarNeedingWork()">Add Car</button>
+        </div>
+        <div class="card">
+          <div class="card-title">All Cars Needing Work</div>
+          <div class="tbl-wrap" id="cnw-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- REPAIR APPLICATIONS -->
+      <div class="view" id="view-repair">
+        <div class="view-title">Repair Applications</div>
+        <div class="view-sub">Applicants requesting discounted or free vehicle repair assistance.</div>
+        <div class="card">
+          <div class="tbl-wrap" id="repair-apps-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- TESTIMONIALS -->
+      <div class="view" id="view-testimonials">
+        <div class="view-title">Testimonials</div>
+        <div class="view-sub">Manage testimonials shown on the public /testimonials.html page.</div>
+        <div class="card">
+          <div class="card-title">Add Testimonial</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="form-field"><label>Name</label><input type="text" id="tst-name" placeholder="Jane S." class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+            <div class="form-field"><label>Location (optional)</label><input type="text" id="tst-location" placeholder="Surrey, BC" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+          </div>
+          <div class="form-field"><label>Quote</label><textarea id="tst-quote" style="width:100%;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;resize:vertical;min-height:90px;outline:none;" placeholder="In their own words..."></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="form-field"><label>Role / Context</label><input type="text" id="tst-role" placeholder="Recipient, 2 children" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+            <div class="form-field"><label>Date (optional)</label><input type="text" id="tst-date" placeholder="October 2026" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+          </div>
+          <button class="btn btn-primary" onclick="addTestimonial()">Add Testimonial</button>
+        </div>
+        <div class="card">
+          <div class="card-title">All Testimonials</div>
+          <div class="tbl-wrap" id="testimonials-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- TEAM MEMBERS -->
+      <div class="view" id="view-team">
+        <div class="view-title">Team Members</div>
+        <div class="view-sub">Manage the leadership bios shown on the About Us page.</div>
+        <div class="card">
+          <div class="card-title">Add Team Member</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="form-field"><label>Name</label><input type="text" id="tm-name" placeholder="Jane Doe" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+            <div class="form-field"><label>Role / Title</label><input type="text" id="tm-role" placeholder="Executive Director · Co-Founder" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+          </div>
+          <div class="form-field"><label>Bio</label><textarea id="tm-bio" style="width:100%;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;resize:vertical;min-height:90px;outline:none;" placeholder="A short bio about this team member..."></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start;margin-bottom:1rem;">
+            <div class="form-field" style="margin-bottom:0;">
+              <label>Profile Photo (optional — PNG or JPG)</label>
+              <div id="tm-img-wrap" style="border:1.5px dashed var(--border);border-radius:6px;padding:1rem;text-align:center;cursor:pointer;background:var(--off);position:relative;" onclick="document.getElementById('tm-img-file').click()">
+                <input type="file" id="tm-img-file" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="openCropEditor('tm-img-file','circle','tm','tm-img-preview','tm-img-label')"/>
+                <img id="tm-img-preview" src="" style="display:none;max-height:80px;max-width:100%;border-radius:50%;margin-bottom:0.5rem;object-fit:cover;width:80px;height:80px;"/>
+                <div id="tm-img-label" style="font-size:0.82rem;color:var(--muted);">Click to upload photo</div>
+              </div>
+            </div>
+            <div class="form-field" style="max-width:120px;margin-bottom:0;"><label>Sort Order</label><input type="number" id="tm-sort" placeholder="0" min="0" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+          </div>
+          <button class="btn btn-primary" onclick="addTeamMember()">Add Team Member</button>
+        </div>
+        <div class="card">
+          <div class="card-title">All Team Members</div>
+          <div class="tbl-wrap" id="team-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- SPONSORS -->
+      <div class="view" id="view-sponsors">
+        <div class="view-title">Sponsors</div>
+        <div class="view-sub">Manage sponsor cards shown on the Sponsors page.</div>
+        <div class="card">
+          <div class="card-title">Add Sponsor</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="form-field"><label>Name</label><input type="text" id="sp-name" placeholder="Effective Autobody" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+            <div class="form-field"><label>Type</label><input type="text" id="sp-type" placeholder="Shop Sponsor · Vehicle Certification Hub" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+          </div>
+          <div class="form-field"><label>Description</label><textarea id="sp-desc" style="width:100%;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;resize:vertical;min-height:90px;outline:none;" placeholder="A short description of this sponsor..."></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div class="form-field"><label>Tags (comma-separated)</label><input type="text" id="sp-tags" placeholder="Vehicle Intake,Certification,Pro Bono Repairs" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+            <div class="form-field"><label>Website URL (optional)</label><input type="text" id="sp-website" placeholder="https://..." class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start;margin-bottom:1rem;">
+            <div class="form-field" style="margin-bottom:0;">
+              <label>Logo (optional — PNG or JPG)</label>
+              <div id="sp-img-wrap" style="border:1.5px dashed var(--border);border-radius:6px;padding:1rem;text-align:center;cursor:pointer;background:var(--off);position:relative;" onclick="document.getElementById('sp-img-file').click()">
+                <input type="file" id="sp-img-file" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="openCropEditor('sp-img-file','rect','sp','sp-img-preview','sp-img-label')"/>
+                <img id="sp-img-preview" src="" style="display:none;max-height:80px;max-width:200px;border-radius:4px;margin-bottom:0.5rem;object-fit:contain;"/>
+                <div id="sp-img-label" style="font-size:0.82rem;color:var(--muted);">Click to upload logo</div>
+              </div>
+            </div>
+            <div class="form-field" style="max-width:120px;margin-bottom:0;"><label>Sort Order</label><input type="number" id="sp-sort" placeholder="0" min="0" class="lock-input" style="font-family:inherit;letter-spacing:0;font-size:0.9rem;padding:0.6rem 0.875rem;"/></div>
+          </div>
+          <button class="btn btn-primary" onclick="addSponsor()">Add Sponsor</button>
+        </div>
+        <div class="card">
+          <div class="card-title">All Sponsors</div>
+          <div class="tbl-wrap" id="sponsors-tbl"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- LIVE STATS -->
+      <div class="view" id="view-stats">
+        <div class="view-title">Live Stats</div>
+        <div class="view-sub">These numbers appear as an animated counter on the homepage. Leave a field blank to use the live database count.</div>
+        <div class="card">
+          <div class="card-title">Visibility</div>
+          <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:0.9rem;">
+            <input type="checkbox" id="stats-visible" style="width:1.1rem;height:1.1rem;cursor:pointer;" onchange="saveStats()"/>
+            Show stats section on homepage
+          </label>
+        </div>
+        <div class="card">
+          <div class="card-title">Manual Override Values</div>
+          <p style="font-size:0.875rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.6;">If you enter a value here, it overrides the auto-count from the database. Leave blank to use live counts.</p>
+          <div id="stats-form"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+          <button class="btn btn-primary" style="margin-top:1rem;" onclick="saveStats()">Save Stats</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Current Live Counts (from database)</div>
+          <div id="live-counts"><p style="color:var(--muted);font-size:0.875rem;">Loading...</p></div>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-body" id="confirmBody">This action cannot be undone.</div>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="confirmOkBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- EmailJS for OTP delivery -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+var SUPABASE_URL = 'https://jzyfiagualwvmznnnvoy.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_RO133yoq9HSXyx1igzsRVQ_ot4ahVAs';
+var EJS_SERVICE  = 'service_17i6wxf';
+var EJS_TEMPLATE = 'template_u3lbm0a';
+var EJS_KEY      = 'lXUFuzJDdnUj5jvOE';
+emailjs.init(EJS_KEY);
+
+// SHA-256 of passphrase: !M0u*MpBFEFq6T^uB9!06WV+P_avnydl
+var PASS_HASH = '608e55c993d0be6dc2c9b06b261bf39243ba60ac9fa1bf36253653a2f8a9f106';
+
+// ── SUPABASE CLIENT ───────────────────────────────────────────────────────
+var sb = (function() {
+  function req(method, path, body) {
+    return fetch(SUPABASE_URL + path, {
+      method: method,
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=representation' : method === 'PATCH' ? 'return=minimal' : ''
+      },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function(r){
+      if (r.status === 204 || r.status === 200 || r.status === 201) {
+        return r.text().then(function(t){ return t ? JSON.parse(t) : {}; });
+      }
+      return r.json();
+    });
+  }
+  return {
+    from: function(table) {
+      return {
+        _table: table, _filters: [], _sel: '*', _ord: null, _lim: null,
+        select: function(s){ this._sel = s || '*'; return this; },
+        order: function(col, opts){ this._ord = col + (opts && opts.ascending===false ? '.desc' : '.asc'); return this; },
+        limit: function(n){ this._lim = n; return this; },
+        eq: function(col, val){ this._filters.push(col+'=eq.'+encodeURIComponent(val)); return this; },
+        _url: function(){
+          var u = '/rest/v1/' + this._table + '?select=' + this._sel;
+          this._filters.forEach(function(f){ u += '&' + f; });
+          if (this._ord) u += '&order=' + this._ord;
+          if (this._lim) u += '&limit=' + this._lim;
+          return u;
+        },
+        then: function(resolve, reject){
+          return req('GET', this._url()).then(function(d){
+            return resolve({data: Array.isArray(d) ? d : [], error: d.error||null});
+          }).catch(reject);
+        },
+        update: function(data){
+          var self = this;
+          return {
+            eq: function(col, val){
+              self._filters.push(col+'=eq.'+encodeURIComponent(val));
+              var u = '/rest/v1/' + self._table + '?';
+              self._filters.forEach(function(f,i){ u += (i?'&':'') + f; });
+              return req('PATCH', u, data).then(function(d){ return {data: d, error: d && d.code ? d : null}; });
+            }
+          };
+        },
+        insert: function(data){
+          return req('POST', '/rest/v1/' + this._table, data)
+            .then(function(d){ return {data: d, error: d && d.code ? d : null}; });
+        },
+        upsert: function(data, opts){
+          var conflict = (opts && opts.onConflict) ? '?on_conflict=' + opts.onConflict : '';
+          return fetch(SUPABASE_URL + '/rest/v1/' + this._table + conflict, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': 'Bearer ' + SUPABASE_KEY,
+              'Content-Type': 'application/json',
+              'Prefer': 'resolution=merge-duplicates,return=minimal'
+            },
+            body: JSON.stringify(data)
+          }).then(function(r){
+            if (r.ok || r.status === 204 || r.status === 200 || r.status === 201) return {data: null, error: null};
+            return r.json().then(function(body){ return {data: null, error: {message: body.message || body.hint || ('Upsert failed: ' + r.status)}}; });
+          });
+        },
+        delete: function(){
+          var table = this._table;
+          return {
+            _filters: [],
+            eq: function(col, val){
+              this._filters.push(col + '=eq.' + encodeURIComponent(val));
+              var filters = this._filters;
+              var u = '/rest/v1/' + table + '?' + filters.join('&');
+              return fetch(SUPABASE_URL + u, {
+                method: 'DELETE',
+                headers: {
+                  'apikey': SUPABASE_KEY,
+                  'Authorization': 'Bearer ' + SUPABASE_KEY,
+                  'Content-Type': 'application/json',
+                  'Prefer': 'return=minimal'
+                }
+              }).then(function(r){
+                if (r.ok || r.status === 204) return {error: null};
+                return r.json().then(function(body){ return {error: {message: body.message || body.hint || ('Delete failed: ' + r.status)}}; });
+              });
+            }
+          };
+        }
+      };
+    }
+  };
+})();
+
+// ── AUTH ──────────────────────────────────────────────────────────────────
+var ADMIN_EMAILS = ['zackzhou911@gmail.com', 'info@effectivecare.ca'];
+
+
+async function sha256(msg) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+async function tryUnlock() {
+  var input = document.getElementById('passInput').value;
+  var hash = await sha256(input);
+  if (hash === PASS_HASH || input === atob('IU0wdSpNcEJGRUZxNlRedUI5ITA2V1YrUF9hdm55ZGw=')) {
+    sessionStorage.setItem('ec_pass_ok', '1');
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('twoFAScreen').classList.add('active');
+  } else {
+    var err = document.getElementById('lockErr');
+    err.classList.add('show');
+    setTimeout(function(){ err.classList.remove('show'); }, 3000);
+  }
+}
+
+document.getElementById('passInput').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') tryUnlock();
+});
+
+// ── EMAIL OTP (EmailJS — generates code in browser, sends via EmailJS) ─────
+var _otpCode  = '';
+var _otpEmail = '';
+var _otpExpiry = 0;
+
+function genCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function sendOtp(isResend) {
+  var email = document.getElementById('otpEmailSelect').value;
+  if (!email) { showOtpSendErr('Please select an email address.'); return; }
+  if (!ADMIN_EMAILS.includes(email)) { showOtpSendErr('That email is not authorized.'); return; }
+
+  var btn = document.getElementById('otpSendBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  _otpCode   = genCode();
+  _otpEmail  = email;
+  _otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+  try {
+    await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+      to_email: email,
+      passcode: _otpCode
+    });
+    document.getElementById('otpSentNote').textContent =
+      'A 6-digit code was sent to ' + email + '. It expires in 10 minutes.';
+    document.getElementById('otpCodeSection').classList.add('visible');
+    document.getElementById('otpSendErr').style.display = 'none';
+    document.getElementById('otpCodeInput').value = '';
+    setTimeout(function(){ document.getElementById('otpCodeInput').focus(); }, 100);
+    if (isResend) toast('New code sent to ' + email + '.');
+  } catch(e) {
+    _otpCode = ''; // invalidate on failure
+    showOtpSendErr('Could not send code. Check your connection and try again.');
+    console.error(e);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Send Code';
+}
+
+function showOtpSendErr(msg) {
+  var e = document.getElementById('otpSendErr');
+  e.textContent = msg; e.style.display = 'block';
+  setTimeout(function(){ e.style.display = 'none'; }, 5000);
+}
+
+function verifyOtp() {
+  var entered = document.getElementById('otpCodeInput').value.trim();
+  if (entered.length < 6) { showOtpVerifyErr('Enter the full 6-digit code.'); return; }
+  if (!_otpCode) { showOtpVerifyErr('No code was sent. Click Send Code first.'); return; }
+  if (Date.now() > _otpExpiry) { showOtpVerifyErr('Code expired. Request a new one.'); _otpCode = ''; return; }
+  if (entered === _otpCode) {
+    enterAdmin();
+  } else {
+    showOtpVerifyErr('Incorrect code. Try again.');
+    document.getElementById('otpCodeInput').value = '';
+    document.getElementById('otpCodeInput').focus();
+  }
+}
+
+function showOtpVerifyErr(msg) {
+  var e = document.getElementById('otpVerifyErr');
+  e.textContent = msg; e.style.display = 'block';
+  setTimeout(function(){ e.style.display = 'none'; }, 6000);
+}
+
+function enterAdmin() {
+  sessionStorage.setItem('ec_admin_auth', '1');
+  document.getElementById('twoFAScreen').classList.remove('active');
+  document.getElementById('adminApp').classList.add('active');
+  loadAllData();
+}
+
+function logout() {
+  sessionStorage.removeItem('ec_admin_auth');
+  sessionStorage.removeItem('ec_pass_ok');
+  _otpCode = '';
+  location.reload();
+}
+
+// Re-auth if session alive
+if (sessionStorage.getItem('ec_admin_auth') === '1') {
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('adminApp').classList.add('active');
+  loadAllData();
+}
+
+// ── CONFIRM MODAL ─────────────────────────────────────────────────────────
+var _confirmCallback = null;
+function openConfirm(title, body, onOk) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').textContent  = body;
+  _confirmCallback = onOk;
+  document.getElementById('confirmModal').classList.add('active');
+  document.getElementById('confirmOkBtn').onclick = function() { var cb = _confirmCallback; closeConfirm(); if (cb) cb(); };
+}
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('active');
+  _confirmCallback = null;
+  // Reset modal to default confirm state
+  var box = document.querySelector('.confirm-box');
+  if (box) box.classList.remove('wide');
+  var okBtn = document.getElementById('confirmOkBtn');
+  if (okBtn) { okBtn.style.display = ''; }
+  var cancelBtn = document.querySelector('#confirmModal .confirm-actions .btn');
+  if (cancelBtn) cancelBtn.textContent = 'Cancel';
+}
+// Close on backdrop click
+document.getElementById('confirmModal').addEventListener('click', function(e){ if (e.target === this) closeConfirm(); });
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+var titles = {
+  dashboard:    'Dashboard',
+  donations:    'Donations',
+  applications: 'Recipient Applications',
+  matching:     'Vehicle Matching',
+  seeyourcar:   'See Your Car',
+  carsneeding:  'Cars Needing Work',
+  repair:       'Repair Applications',
+  testimonials: 'Testimonials',
+  team:         'Team Members',
+  sponsors:     'Sponsors',
+  stats:        'Live Stats'
+};
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){ a.classList.remove('active'); });
+  document.getElementById('view-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  document.getElementById('topbarTitle').textContent = titles[id] || id;
+}
+
+// ── DATA LOADING ──────────────────────────────────────────────────────────
+var _donations = [], _applications = [], _cashDonations = [], _labourVolunteers = [];
+var _carsNeeding = [], _testimonials = [], _repairApps = [], _teamMembers = [], _sponsors = [];
+
+async function loadAllData() {
+  try {
+    var results = await Promise.all([
+      sb.from('vehicle_donations').select('*').order('created_at', {ascending: false}),
+      sb.from('applications').select('*').order('created_at', {ascending: false}),
+      sb.from('cash_donations').select('*').order('created_at', {ascending: false}),
+      sb.from('volunteer_labour').select('*').order('created_at', {ascending: false}),
+      sb.from('cars_needing_work').select('*').order('created_at', {ascending: false}),
+      sb.from('testimonials').select('*').order('created_at', {ascending: false}),
+      sb.from('repair_applications').select('*').order('created_at', {ascending: false}),
+      sb.from('team_members').select('*').order('sort_order', {ascending: true}),
+      sb.from('sponsors').select('*').order('sort_order', {ascending: true})
+    ]);
+    _donations        = results[0].data || [];
+    _applications     = results[1].data || [];
+    _cashDonations    = results[2].data || [];
+    _labourVolunteers = results[3].data || [];
+    _carsNeeding      = results[4].data || [];
+    _testimonials     = results[5].data || [];
+    _repairApps       = results[6].data || [];
+    _teamMembers      = results[7].data || [];
+    _sponsors         = results[8].data || [];
+  } catch(e) {
+    console.error('loadAllData error', e);
+    _donations = []; _applications = [];
+  }
+  renderDashboard();
+  renderDonationsTable();
+  renderCashDonationsTable();
+  renderLabourTable();
+  renderApplicationsTable();
+  renderMatchPanel();
+  renderCarsNeedingWork();
+  renderRepairApps();
+  renderTestimonials();
+  renderTeamMembers();
+  renderSponsors();
+  renderStatsForm();
+  loadSycData();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDashboard() {
+  document.getElementById('s-donations').textContent = _donations.length;
+  document.getElementById('s-certified').textContent = _donations.filter(function(d){ return d.status === 'certified'; }).length;
+  document.getElementById('s-applications').textContent = _applications.length;
+  document.getElementById('s-matched').textContent = _donations.filter(function(d){ return d.matched_family_id; }).length;
+
+  var recent5d = _donations.slice(0, 5);
+  document.getElementById('recent-donations-tbl').innerHTML = recent5d.length ?
+    '<table class="dtbl"><thead><tr><th>Date</th><th>Vehicle</th><th>Year</th><th>Status</th></tr></thead><tbody>' +
+    recent5d.map(function(d){ return '<tr><td>' + fmtDate(d.created_at) + '</td><td>' + (d.make||'') + ' ' + (d.model||'') + '</td><td>' + (d.year||'') + '</td><td>' + badge(d.status) + '</td></tr>'; }).join('') +
+    '</tbody></table>' :
+    emptyState('No donations yet');
+
+  var recent5a = _applications.slice(0, 5);
+  document.getElementById('recent-apps-tbl').innerHTML = recent5a.length ?
+    '<table class="dtbl"><thead><tr><th>Date</th><th>Employment</th><th>Dependents</th><th>Need Score</th><th>Status</th></tr></thead><tbody>' +
+    recent5a.map(function(a){ return '<tr><td>' + fmtDate(a.created_at) + '</td><td>' + (a.employment_status||'') + '</td><td>' + (a.num_dependents||0) + '</td><td>' + (a.need_score||'-') + '</td><td>' + badge(a.status) + '</td></tr>'; }).join('') +
+    '</tbody></table>' :
+    emptyState('No applications yet');
+}
+
+// ── DONATIONS TABLE ───────────────────────────────────────────────────────
+var DONATION_STATUSES = ['received','inspecting','certified','matched','delivered','rejected'];
+var STATUS_ORDER = {received:0,inspecting:1,certified:2,matched:3,delivered:4,rejected:5};
+
+// Sub-tab switcher
+function showDonationTab(tab) {
+  ['vehicles','cash','labour'].forEach(function(t){
+    document.getElementById('dtab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('dpane-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+function renderDonationsTable() {
+  if (!_donations.length) { document.getElementById('all-donations-tbl').innerHTML = emptyState('No vehicle donations yet'); return; }
+  // Sort by status order
+  var sorted = _donations.slice().sort(function(a,b){
+    return (STATUS_ORDER[a.status]||99) - (STATUS_ORDER[b.status]||99);
+  });
+  document.getElementById('all-donations-tbl').innerHTML =
+    '<table class="dtbl"><thead><tr><th>Date</th><th>Vehicle</th><th>Year</th><th>Mileage</th><th>Condition</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+    sorted.map(function(d){
+      return '<tr>' +
+        '<td>' + fmtDate(d.created_at) + '</td>' +
+        '<td style="font-weight:600;">' + (d.make||'') + ' ' + (d.model||'') + '</td>' +
+        '<td>' + (d.year||'') + '</td>' +
+        '<td>' + (d.mileage ? d.mileage.toLocaleString() + ' km' : '-') + '</td>' +
+        '<td>' + (d.condition||'-') + '</td>' +
+        '<td>' + badge(d.status) + '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<select class="status-sel" onchange="updateDonationStatus(\'' + d.id + '\', this.value)">' +
+          DONATION_STATUSES.map(function(s){ return '<option value="' + s + '"' + (d.status===s?' selected':'') + '>' + s + '</option>'; }).join('') +
+          '</select>' +
+          '<button class="btn-danger-sm" onclick="confirmDeleteDonation(\'' + d.id + '\',\'' + (d.year||'') + ' ' + (d.make||'') + ' ' + (d.model||'') + '\')">Delete</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('') +
+    '</tbody></table>';
+}
+
+function confirmDeleteDonation(id, label) {
+  openConfirm(
+    'Delete this donation?',
+    'Delete "' + label.trim() + '"? This cannot be undone.',
+    function() { deleteDonation(id); }
+  );
+}
+
+async function deleteDonation(id) {
+  var r = await sb.from('vehicle_donations').delete().eq('id', id);
+  if (r.error) { toast('Error deleting donation: ' + r.error.message, true); return; }
+  _donations = _donations.filter(function(x){ return x.id !== id; });
+  renderDonationsTable();
+  renderDashboard();
+  renderMatchPanel();
+  toast('Donation deleted.');
+}
+
+async function updateDonationStatus(id, status) {
+  var r = await sb.from('vehicle_donations').update({status: status}).eq('id', id);
+  if (r && r.error) { toast('Error updating status', true); return; }
+  var d = _donations.find(function(x){ return x.id === id; });
+  if (d) d.status = status;
+  toast('Status updated to: ' + status);
+  renderMatchPanel();
+}
+
+// ── APPLICATIONS TABLE ────────────────────────────────────────────────────
+var APP_STATUSES = ['submitted','reviewing','scored','approved','matched','delivered','declined'];
+
+function renderApplicationsTable() {
+  if (!_applications.length) { document.getElementById('all-apps-tbl').innerHTML = emptyState('No applications yet'); return; }
+  document.getElementById('all-apps-tbl').innerHTML =
+    '<table class="dtbl"><thead><tr><th>Date</th><th>Applicant</th><th>City</th><th>Income</th><th>Dependents</th><th>Need Score</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+    _applications.map(function(a){
+      return '<tr>' +
+        '<td>' + fmtDate(a.created_at) + '</td>' +
+        '<td style="font-size:0.8rem;">' + esc(a.applicant_email || a.applicant_name || '—') + '</td>' +
+        '<td>' + esc((a.city||'-') + (a.province ? ', '+a.province : '')) + '</td>' +
+        '<td>' + esc(a.income_range || (a.household_income ? '$' + Number(a.household_income).toLocaleString() : '-')) + '</td>' +
+        '<td>' + (a.num_dependents||a.dependents||0) + '</td>' +
+        '<td style="font-weight:700;color:var(--blue);">' + (a.need_score||'-') + '</td>' +
+        '<td>' + badge(a.status) + '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<button class="btn-sm" style="background:var(--blue);color:#fff;border:none;border-radius:4px;padding:0.3rem 0.65rem;font-size:0.72rem;font-weight:600;cursor:pointer;margin-right:0.25rem;" onclick="viewApp(\'' + a.id + '\')">View</button>' +
+          '<select class="status-sel" onchange="updateAppStatus(\'' + a.id + '\', this.value)">' +
+          APP_STATUSES.map(function(s){ return '<option value="' + s + '"' + (a.status===s?' selected':'') + '>' + s + '</option>'; }).join('') +
+          '</select>' +
+          '<button class="btn-danger-sm" onclick="confirmDeleteApp(\'' + a.id + '\',\'' + fmtDate(a.created_at) + '\')">Delete</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('') +
+    '</tbody></table>';
+}
+
+function viewApp(id) {
+  var a = _applications.find(function(x){ return x.id === id; });
+  if (!a) return;
+  var rows = [
+    ['Submitted',       fmtDate(a.created_at)],
+    ['Status',          a.status || '—'],
+    ['— CONTACT —',     ''],
+    ['Email',           a.applicant_email || '—'],
+    ['Name',            a.applicant_name  || '—'],
+    ['Phone',           a.phone           || '—'],
+    ['— LOCATION —',    ''],
+    ['City',            a.city            || '—'],
+    ['Province',        a.province        || '—'],
+    ['— HOUSEHOLD —',   ''],
+    ['Household Size',  a.household_size  || a.household || '—'],
+    ['Dependents',      a.num_dependents  || a.dependents || '—'],
+    ['Income Range',    a.income_range    || (a.household_income ? '$'+Number(a.household_income).toLocaleString() : '—')],
+    ['Housing',         a.housing_status  || a.housing   || '—'],
+    ['— SITUATION —',   ''],
+    ['Employment',      a.employment_status || a.employment || '—'],
+    ['Distance to Work',a.distance_to_work  || a.distance   || '—'],
+    ['Current Transport',a.current_transport|| a.transport  || '—'],
+    ['Driver\'s Licence',a.has_licence      || a.licence    || '—'],
+    ['— STATEMENT —',   ''],
+    ['Reason / Need',   a.reason_for_need   || a.reason     || '—'],
+    ['Special Circumstances', a.special_circumstances || a.special || '—'],
+    ['Consent',         a.consent                                  || '—'],
+    ['— SCORING —',     ''],
+    ['Need Score',      a.need_score || '—'],
+    ['Matched Vehicle', a.matched_vehicle_id || '—'],
+  ];
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">';
+  rows.forEach(function(row) {
+    if (row[0].startsWith('—')) {
+      html += '<tr><td colspan="2" style="padding:0.6rem 0 0.2rem;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;">' + row[0].replace(/—/g,'').trim() + '</td></tr>';
+    } else {
+      html += '<tr><td style="padding:0.3rem 1rem 0.3rem 0;color:var(--muted);white-space:nowrap;vertical-align:top;font-weight:600;">' + esc(row[0]) + '</td>' +
+              '<td style="padding:0.3rem 0;word-break:break-word;">' + esc(String(row[1])) + '</td></tr>';
+    }
+  });
+  html += '</table>';
+  // Re-use confirm modal as a view modal
+  document.getElementById('confirmTitle').textContent = 'Application — ' + (a.applicant_email || a.applicant_name || fmtDate(a.created_at));
+  document.getElementById('confirmBody').innerHTML = html;
+  document.getElementById('confirmOkBtn').style.display = 'none';
+  document.querySelector('#confirmModal .confirm-actions .btn').textContent = 'Close';
+  document.querySelector('.confirm-box').classList.add('wide');
+  document.getElementById('confirmModal').classList.add('active');
+}
+
+function confirmDeleteApp(id, label) {
+  openConfirm(
+    'Delete this application?',
+    'Delete application from ' + label + '? This cannot be undone.',
+    function() { deleteApp(id); }
+  );
+}
+
+async function deleteApp(id) {
+  var r = await sb.from('applications').delete().eq('id', id);
+  if (r.error) { toast('Error deleting application: ' + r.error.message, true); return; }
+  _applications = _applications.filter(function(x){ return x.id !== id; });
+  renderApplicationsTable();
+  renderDashboard();
+  renderMatchPanel();
+  toast('Application deleted.');
+}
+
+async function updateAppStatus(id, status) {
+  var r = await sb.from('applications').update({status: status}).eq('id', id);
+  if (r && r.error) { toast('Error updating status', true); return; }
+  var a = _applications.find(function(x){ return x.id === id; });
+  if (a) a.status = status;
+  toast('Application status updated: ' + status);
+  renderMatchPanel();
+}
+
+// ── MATCHING ─────────────────────────────────────────────────────────────
+var _selVehicle = null, _selApplicant = null;
+
+function renderMatchPanel() {
+  var readyCars = _donations.filter(function(d){ return d.status === 'certified' && !d.matched_family_id; });
+  var readyApps = _applications.filter(function(a){ return a.status === 'approved' && !a.matched_vehicle_id; });
+
+  document.getElementById('match-vehicles').innerHTML = readyCars.length ?
+    readyCars.map(function(d){
+      return '<div class="match-item' + (_selVehicle===d.id?' selected':'') + '" onclick="selVehicle(\'' + d.id + '\', this)">' +
+        '<div class="match-item-title">' + (d.year||'') + ' ' + (d.make||'') + ' ' + (d.model||'') + '</div>' +
+        '<div class="match-item-sub">' + (d.condition||'') + (d.mileage ? ' &middot; ' + d.mileage.toLocaleString() + ' km' : '') + '</div>' +
+      '</div>';
+    }).join('') :
+    '<p style="color:var(--muted);font-size:0.875rem;">No certified vehicles available. Set a donation status to "certified" first.</p>';
+
+  document.getElementById('match-applicants').innerHTML = readyApps.length ?
+    readyApps.sort(function(a,b){ return (b.need_score||0)-(a.need_score||0); }).map(function(a){
+      return '<div class="match-item' + (_selApplicant===a.id?' selected':'') + '" onclick="selApplicant(\'' + a.id + '\', this)">' +
+        '<div class="match-item-title">Applicant &middot; Need Score: ' + (a.need_score||'N/A') + '</div>' +
+        '<div class="match-item-sub">' + (a.employment_status||'') + ' &middot; ' + (a.num_dependents||0) + ' dependents' + (a.household_income ? ' &middot; $' + Number(a.household_income).toLocaleString() : '') + '</div>' +
+      '</div>';
+    }).join('') :
+    '<p style="color:var(--muted);font-size:0.875rem;">No approved applicants. Set an application status to "approved" first.</p>';
+
+  // Render current matches table
+  var matchedDonations = _donations.filter(function(d){ return d.matched_family_id; });
+  var matchesTbl = document.getElementById('current-matches-tbl');
+  if (matchesTbl) {
+    if (!matchedDonations.length) {
+      matchesTbl.innerHTML = emptyState('No active matches');
+    } else {
+      matchesTbl.innerHTML = '<table class="dtbl"><thead><tr><th>Vehicle</th><th>Matched Applicant</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+        matchedDonations.map(function(d){
+          var app = _applications.find(function(a){ return a.id === d.matched_family_id; });
+          return '<tr>' +
+            '<td style="font-weight:600;">' + esc((d.year||'') + ' ' + (d.make||'') + ' ' + (d.model||'')) + '</td>' +
+            '<td style="font-size:0.8rem;">' + esc(app ? (app.applicant_email || app.applicant_name || app.id) : d.matched_family_id) + '</td>' +
+            '<td>' + badge(d.status) + '</td>' +
+            '<td><button class="btn-danger-sm" onclick="confirmDeleteMatch(\'' + d.id + '\',\'' + (app ? app.id : d.matched_family_id) + '\')">Remove Match</button></td>' +
+          '</tr>';
+        }).join('') + '</tbody></table>';
+    }
+  }
+}
+
+function selVehicle(id, el) {
+  _selVehicle = id;
+  document.querySelectorAll('#match-vehicles .match-item').forEach(function(x){ x.classList.remove('selected'); });
+  el.classList.add('selected');
+  updateMatchHint();
+}
+function selApplicant(id, el) {
+  _selApplicant = id;
+  document.querySelectorAll('#match-applicants .match-item').forEach(function(x){ x.classList.remove('selected'); });
+  el.classList.add('selected');
+  updateMatchHint();
+}
+function updateMatchHint() {
+  var h = document.getElementById('match-hint');
+  if (_selVehicle && _selApplicant) { h.textContent = 'Ready to match. Click "Create Match" to confirm.'; h.style.color = 'var(--green)'; }
+  else { h.textContent = 'Select one vehicle and one applicant above.'; h.style.color = 'var(--muted)'; }
+}
+
+async function confirmMatch() {
+  var res = document.getElementById('match-result');
+  res.className = 'match-result';
+  if (!_selVehicle || !_selApplicant) { res.className = 'match-result error'; res.textContent = 'Please select a vehicle and an applicant before matching.'; return; }
+  try {
+    await Promise.all([
+      sb.from('vehicle_donations').update({status: 'matched', matched_family_id: _selApplicant}).eq('id', _selVehicle),
+      sb.from('applications').update({status: 'matched', matched_vehicle_id: _selVehicle}).eq('id', _selApplicant)
+    ]);
+    // Update local state
+    var d = _donations.find(function(x){ return x.id === _selVehicle; });
+    var a = _applications.find(function(x){ return x.id === _selApplicant; });
+    if (d) { d.status = 'matched'; d.matched_family_id = _selApplicant; }
+    if (a) { a.status = 'matched'; a.matched_vehicle_id = _selVehicle; }
+    _selVehicle = null; _selApplicant = null;
+    res.className = 'match-result success';
+    res.textContent = 'Match created successfully. Both records have been updated.';
+    renderMatchPanel();
+    renderDashboard();
+  } catch(e) {
+    res.className = 'match-result error';
+    res.textContent = 'Error creating match. Check the console for details.';
+    console.error(e);
+  }
+}
+
+// ── SEE YOUR CAR ──────────────────────────────────────────────────────────
+async function loadSycData() {
+  // Populate vehicle dropdown
+  var activeDelivered = _donations.filter(function(d){ return d.status === 'matched' || d.status === 'delivered'; });
+  var sel = document.getElementById('syc-vehicle');
+  if (activeDelivered.length) {
+    sel.innerHTML = '<option value="">Select a vehicle...</option>' +
+      activeDelivered.map(function(d){ return '<option value="' + d.id + '">' + (d.year||'') + ' ' + (d.make||'') + ' ' + (d.model||'') + '</option>'; }).join('');
+  } else {
+    sel.innerHTML = '<option value="">No matched/delivered vehicles yet</option>';
+  }
+
+  // Load recent updates
+  try {
+    var res = await sb.from('syc_updates').select('*').order('created_at', {ascending: false}).limit(10);
+    var updates = res.data || [];
+    document.getElementById('syc-history').innerHTML = updates.length ?
+      updates.map(function(u){
+        return '<div class="syc-entry">' +
+          '<div class="syc-meta">' + fmtDate(u.created_at) + (u.milestone ? ' &middot; ' + u.milestone : '') + (u.months_in_use ? ' &middot; Month ' + u.months_in_use : '') + '</div>' +
+          '<div class="syc-msg">' + (u.quote ? '"' + u.quote + '"' : '(no message)') + '</div>' +
+        '</div>';
+      }).join('') :
+      '<p style="color:var(--muted);font-size:0.875rem;">No updates posted yet.</p>';
+  } catch(e) {
+    document.getElementById('syc-history').innerHTML = '<p style="color:var(--muted);font-size:0.875rem;">Could not load history.</p>';
+  }
+}
+
+async function postSycUpdate() {
+  var vehicleId = document.getElementById('syc-vehicle').value;
+  var milestone = document.getElementById('syc-milestone').value.trim();
+  var message = document.getElementById('syc-message').value.trim();
+  var usesRaw = document.getElementById('syc-uses').value.trim();
+  var months = parseInt(document.getElementById('syc-months').value) || 0;
+
+  if (!vehicleId || !message) { toast('Select a vehicle and write a message first.', true); return; }
+
+  var vehicle = _donations.find(function(d){ return d.id === vehicleId; });
+  var uses = usesRaw ? usesRaw.split(',').map(function(s){ return s.trim(); }) : [];
+
+  try {
+    await sb.from('syc_updates').insert({
+      donation_id: vehicleId,
+      message: message
+    });
+    toast('Update posted to donor dashboard.');
+    // Clear form
+    document.getElementById('syc-milestone').value = '';
+    document.getElementById('syc-message').value = '';
+    document.getElementById('syc-uses').value = '';
+    document.getElementById('syc-months').value = '';
+    loadSycData();
+  } catch(e) {
+    toast('Error posting update.', true);
+    console.error(e);
+  }
+}
+
+// ── CASH DONATIONS TABLE ──────────────────────────────────────────────────
+function renderCashDonationsTable() {
+  var el = document.getElementById('cash-donations-tbl');
+  if (!el) return;
+  if (!_cashDonations.length) { el.innerHTML = emptyState('No cash donation requests yet'); return; }
+  el.innerHTML = '<table class="dtbl"><thead><tr><th>Date</th><th>Email</th><th>Amount</th><th>Frequency</th><th>Method</th><th>Receipt Name</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+    _cashDonations.map(function(c){
+      return '<tr>' +
+        '<td>' + fmtDate(c.created_at) + '</td>' +
+        '<td style="font-size:0.8rem;">' + esc(c.donor_email||'—') + '</td>' +
+        '<td style="font-weight:700;">' + (c.amount ? '$' + Number(c.amount).toLocaleString('en-CA', {minimumFractionDigits:2}) : '—') + '</td>' +
+        '<td>' + esc(c.frequency||'one-time') + '</td>' +
+        '<td>' + esc(c.payment_method||'—') + '</td>' +
+        '<td>' + esc(c.receipt_name||'—') + (c.receipt_org ? '<br><span style="font-size:0.75rem;color:var(--muted);">'+esc(c.receipt_org)+'</span>' : '') + '</td>' +
+        '<td>' + badge(c.status||'pending') + '</td>' +
+        '<td><button class="btn-danger-sm" onclick="confirmDeleteCash(\''+c.id+'\')">Delete</button></td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+}
+function confirmDeleteCash(id) {
+  openConfirm('Delete cash donation?','This cannot be undone.',function(){ deleteCash(id); });
+}
+async function deleteCash(id) {
+  var r = await sb.from('cash_donations').delete().eq('id', id);
+  if (r.error) { toast('Error: ' + r.error.message, true); return; }
+  _cashDonations = _cashDonations.filter(function(x){ return x.id !== id; });
+  renderCashDonationsTable(); toast('Deleted.');
+}
+
+// ── VOLUNTEER LABOUR TABLE ────────────────────────────────────────────────
+function renderLabourTable() {
+  var el = document.getElementById('labour-tbl');
+  if (!el) return;
+  if (!_labourVolunteers.length) { el.innerHTML = emptyState('No volunteer labour requests yet'); return; }
+  el.innerHTML = '<table class="dtbl"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Skill</th><th>Availability</th><th>Actions</th></tr></thead><tbody>' +
+    _labourVolunteers.map(function(v){
+      return '<tr>' +
+        '<td>' + fmtDate(v.created_at) + '</td>' +
+        '<td style="font-weight:600;">' + esc(v.volunteer_name||'—') + (v.phone ? '<br><span style="font-size:0.75rem;color:var(--muted);">'+esc(v.phone)+'</span>' : '') + '</td>' +
+        '<td style="font-size:0.8rem;">' + esc(v.donor_email||'—') + '</td>' +
+        '<td>' + esc(v.skill_area||'—') + '</td>' +
+        '<td>' + esc(v.availability||'—') + '</td>' +
+        '<td><button class="btn-danger-sm" onclick="confirmDeleteLabour(\''+v.id+'\')">Delete</button></td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+}
+function confirmDeleteLabour(id) {
+  openConfirm('Delete volunteer record?','This cannot be undone.',function(){ deleteLabour(id); });
+}
+async function deleteLabour(id) {
+  var r = await sb.from('volunteer_labour').delete().eq('id', id);
+  if (r.error) { toast('Error: ' + r.error.message, true); return; }
+  _labourVolunteers = _labourVolunteers.filter(function(x){ return x.id !== id; });
+  renderLabourTable(); toast('Deleted.');
+}
+
+// ── CARS NEEDING WORK ─────────────────────────────────────────────────────
+function renderCarsNeedingWork() {
+  var el = document.getElementById('cnw-tbl');
+  if (!el) return;
+  if (!_carsNeeding.length) { el.innerHTML = emptyState('No cars added yet'); return; }
+  el.innerHTML = '<table class="dtbl"><thead><tr><th>Vehicle</th><th>Year</th><th>Needs</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+    _carsNeeding.map(function(c){
+      return '<tr>' +
+        '<td style="font-weight:600;">' + esc((c.make||'')+ ' ' + (c.model||'')) + '</td>' +
+        '<td>' + (c.year||'—') + '</td>' +
+        '<td style="font-size:0.8rem;max-width:220px;">' + esc(c.needs_description||c.needs||'—') + '</td>' +
+        '<td><select class="status-sel" onchange="updateCnwStatus(\''+c.id+'\',this.value)">' +
+          ['pending','approved','fixed'].map(function(s){ return '<option value="'+s+'"'+(c.status===s?' selected':'')+'>'+s+'</option>'; }).join('') +
+        '</select></td>' +
+        '<td><button class="btn-danger-sm" onclick="confirmDeleteCnw(\''+c.id+'\',\''+esc(c.make+' '+c.model)+'\')">Delete</button></td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+}
+function previewCnwImage(input) {
+  var preview = document.getElementById('cnw-img-preview');
+  var label   = document.getElementById('cnw-img-label');
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      if (label) label.textContent = input.files[0].name;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+async function addCarNeedingWork() {
+  var make    = document.getElementById('cnw-make').value.trim();
+  var model   = document.getElementById('cnw-model').value.trim();
+  var year    = document.getElementById('cnw-year').value;
+  var mileage = document.getElementById('cnw-mileage').value;
+  var needs   = document.getElementById('cnw-needs').value.trim();
+  var status  = document.getElementById('cnw-status').value;
+  var imgFile = document.getElementById('cnw-img-file');
+  if (!make || !model || !year || !needs) { toast('Please fill in make, model, year, and what needs fixing.', true); return; }
+
+  // Upload image if provided
+  var imgUrl = null;
+  if (imgFile && imgFile.files && imgFile.files[0]) {
+    var file = imgFile.files[0];
+    var ext = file.name.split('.').pop();
+    var storagePath = 'cars-needing-work/' + Date.now() + '-' + make.replace(/\s+/g,'-').toLowerCase() + '-' + model.replace(/\s+/g,'-').toLowerCase() + '.' + ext;
+    try {
+      var fetchUp = await fetch(SUPABASE_URL + '/storage/v1/object/vehicle-images/' + storagePath, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': file.type, 'x-upsert': 'true' },
+        body: file
+      });
+      if (fetchUp.ok) {
+        imgUrl = SUPABASE_URL + '/storage/v1/object/public/vehicle-images/' + storagePath;
+      } else {
+        toast('Image upload failed — car will be added without photo.', false);
+      }
+    } catch(e) {
+      toast('Image upload error — car will be added without photo.', false);
+    }
+  }
+
+  var r = await sb.from('cars_needing_work').insert({
+    make: make, model: model, year: parseInt(year),
+    mileage: mileage ? parseInt(mileage) : null,
+    needs_description: needs, image_url: imgUrl, status: status
+  });
+  if (r.error) {
+    // If needs_description column doesn't exist, retry with 'needs'
+    if (r.error.message && r.error.message.indexOf('needs_description') !== -1) {
+      r = await sb.from('cars_needing_work').insert({
+        make: make, model: model, year: parseInt(year),
+        mileage: mileage ? parseInt(mileage) : null,
+        needs: needs, image_url: imgUrl, status: status
+      });
+    }
+    if (r.error) { toast('Error: ' + (r.error.message||JSON.stringify(r.error)), true); return; }
+  }
+  toast('Car added.');
+  ['cnw-make','cnw-model','cnw-year','cnw-mileage','cnw-needs'].forEach(function(id){ document.getElementById(id).value=''; });
+  if (imgFile) imgFile.value = '';
+  var preview = document.getElementById('cnw-img-preview');
+  if (preview) { preview.src=''; preview.style.display='none'; }
+  var lbl = document.getElementById('cnw-img-label');
+  if (lbl) lbl.textContent = 'Click to upload a photo';
+  loadAllData();
+}
+async function updateCnwStatus(id, status) {
+  var r = await sb.from('cars_needing_work').update({status: status}).eq('id', id);
+  if (r && r.error) { toast('Error updating', true); return; }
+  var c = _carsNeeding.find(function(x){ return x.id === id; });
+  if (c) c.status = status;
+  toast('Status updated: ' + status);
+}
+function confirmDeleteCnw(id, label) {
+  openConfirm('Delete car?','Delete "'+label.trim()+'"? This cannot be undone.',function(){ deleteCnw(id); });
+}
+async function deleteCnw(id) {
+  var r = await sb.from('cars_needing_work').delete().eq('id', id);
+  if (r.error) { toast('Error: ' + r.error.message, true); return; }
+  _carsNeeding = _carsNeeding.filter(function(x){ return x.id !== id; });
+  renderCarsNeedingWork(); toast('Deleted.');
+}
+
+// ── REPAIR APPLICATIONS ───────────────────────────────────────────────────
+function renderRepairApps() {
+  var el = document.getElementById('repair-apps-tbl');
+  if (!el) return;
+  if (!_repairApps.length) { el.innerHTML = emptyState('No repair applications yet'); return; }
+  el.innerHTML = '<table class="dtbl"><thead><tr><th>Date</th><th>Email</th><th>Vehicle</th><th>Issue</th><th>Income</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
+    _repairApps.map(function(a){
+      return '<tr>' +
+        '<td>' + fmtDate(a.created_at) + '</td>' +
+        '<td style="font-size:0.8rem;">' + esc(a.applicant_email||'—') + '</td>' +
+        '<td style="font-weight:600;">' + esc((a.vehicle_year||'') + ' ' + (a.vehicle_make||'') + ' ' + (a.vehicle_model||'')) + '</td>' +
+        '<td style="font-size:0.8rem;max-width:180px;">' + esc((a.issue_description||'').slice(0,80)) + (a.issue_description && a.issue_description.length > 80 ? '…' : '') + '</td>' +
+        '<td>' + esc(a.income_range||'—') + '</td>' +
+        '<td><select class="status-sel" onchange="updateRepairStatus(\''+a.id+'\',this.value)">' +
+          ['submitted','reviewing','approved','completed','declined'].map(function(s){ return '<option value="'+s+'"'+(a.status===s?' selected':'')+'>'+s+'</option>'; }).join('') +
+        '</select></td>' +
+        '<td><button class="btn-danger-sm" onclick="confirmDeleteRepair(\''+a.id+'\')">Delete</button></td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+}
+async function updateRepairStatus(id, status) {
+  var r = await sb.from('repair_applications').update({status: status}).eq('id', id);
+  if (r && r.error) { toast('Error', true); return; }
+  var a = _repairApps.find(function(x){ return x.id === id; }); if (a) a.status = status;
+  toast('Status: ' + status);
+}
+function confirmDeleteRepair(id) {
+  openConfirm('Delete repair application?','This cannot be undone.',function(){ deleteRepair(id); });
+}
+async function deleteRepair(id) {
+  var r = await sb.from('repair_applications').delete().eq('id', id);
+  if (r.error) { toast('Error: ' + r.error.message, true); return; }
+  _repairApps = _repairApps.filter(function(x){ return x.id !== id; });
+  renderRepairApps(); toast('Deleted.');
+}
+
+// ── TESTIMONIALS ──────────────────────────────────────────────────────────
+function renderTestimonials() {
+  var el = document.getElementById('testimonials-tbl');
+  if (!el) return;
+  if (!_testimonials.length) { el.innerHTML = emptyState('No testimonials yet'); return; }
+  el.innerHTML = '<table class="dtbl"><thead><tr><th>Name</th><th>Role</th><th>Quote (preview)</th><th>Date</th><th>Actions</th></tr></thead><tbody>' +
+    _testimonials.map(function(t){
+      return '<tr>' +
+        '<td style="font-weight:600;">' + esc(t.name||'—') + (t.location ? '<br><span style="font-size:0.75rem;color:var(--muted);">'+esc(t.location)+'</span>' : '') + '</td>' +
+        '<td style="font-size:0.8rem;">' + esc(t.role||'—') + '</td>' +
+        '<td style="font-size:0.8rem;max-width:280px;font-style:italic;">"' + esc((t.quote||'').slice(0,100)) + (t.quote && t.quote.length > 100 ? '…' : '') + '"</td>' +
+        '<td>' + esc(t.date_label||fmtDate(t.created_at)) + '</td>' +
+        '<td><button class="btn-danger-sm" onclick="confirmDeleteTestimonial(\''+t.id+'\',\''+esc(t.name||'')+'\')">Delete</button></td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+}
+async function addTestimonial() {
+  var name     = document.getElementById('tst-name').value.trim();
+  var location = document.getElementById('tst-location').value.trim();
+  var quote    = document.getElementById('tst-quote').value.trim();
+  var role     = document.getElementById('tst-role').value.trim();
+  var date     = document.getElementById('tst-date').value.trim();
+  if (!name || !quote) { toast('Name and quote are required.', true); return; }
+  var r = await sb.from('testimonials').insert({ name: name, location: location||null, quote: quote, role: role||null, date_label: date||null });
+  if (r.error) {
+    // If date_label column doesn't exist, retry without it (store date in role field)
+    if (r.error.message && r.error.message.indexOf('date_label') !== -1) {
+      r = await sb.from('testimonials').insert({ name: name, location: location||null, quote: quote, role: (role ? role + (date ? ' — ' + date : '') : date)||null });
+    }
+    if (r.error) { toast('Error: ' + (r.error.message||JSON.stringify(r.error)), true); return; }
+  }
+  toast('Testimonial added.');
+  ['tst-name','tst-location','tst-quote','tst-role','tst-date'].forEach(function(id){ document.getElementById(id).value=''; });
+  loadAllData();
+}
+function confirmDeleteTestimonial(id, name) {
+  openConfirm('Delete testimonial?','Delete testimonial from "'+name+'"? This cannot be undone.',function(){ deleteTestimonial(id); });
+}
+async function deleteTestimonial(id) {
+  var r = await sb.from('testimonials').delete().eq('id', id);
+  if (r.error) { toast('Error: ' + r.error.message, true); return; }
+  _testimonials = _testimonials.filter(function(x){ return x.id !== id; });
+  renderTestimonials(); toast('Deleted.');
+}
+
+// ── LIVE STATS ────────────────────────────────────────────────────────────
+var STAT_KEYS = ['total_donations','matched_pairs','families_helped','cars_repaired'];
+var STAT_LABELS = { total_donations:'Total Donations', matched_pairs:'Matched Pairs', families_helped:'Families Helped', cars_repaired:'Cars Repaired' };
+var _statsData = {};
+
+async function renderStatsForm() {
+  // Load current overrides from site_stats table
+  try {
+    var r = await sb.from('site_stats').select('*');
+    if (r && r.error) {
+      var el = document.getElementById('stats-form');
+      if (el) el.innerHTML = '<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:1rem;font-size:0.875rem;color:#856404;"> The <code>site_stats</code> table does not exist yet in Supabase. Run the SQL migration provided during setup, then reload this page.</div>';
+      return;
+    }
+    var rows = r.data || [];
+    rows.forEach(function(row){ _statsData[row.key] = row; });
+    // Set visibility checkbox
+    var visRow = _statsData['stats_visible'];
+    var visChk = document.getElementById('stats-visible');
+    if (visChk) visChk.checked = !visRow || visRow.value !== 0;
+  } catch(e) {
+    var el = document.getElementById('stats-form');
+    if (el) el.innerHTML = '<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:1rem;font-size:0.875rem;color:#856404;"> Could not load stats table. Run the SQL migration then reload.</div>';
+    return;
+  }
+
+  var el = document.getElementById('stats-form');
+  if (!el) return;
+  el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">' +
+    STAT_KEYS.map(function(key){
+      var row = _statsData[key] || {};
+      return '<div class="form-field"><label>' + (STAT_LABELS[key]||key) + ' — override</label>' +
+        '<input type="number" id="stat-'+key+'" placeholder="Leave blank to use live count" style="width:100%;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;" value="' + (row.value !== undefined && row.value !== null ? row.value : '') + '"/>' +
+        '</div>';
+    }).join('') +
+  '</div>';
+
+  // Live counts
+  var liveEl = document.getElementById('live-counts');
+  if (liveEl) {
+    liveEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">' +
+      '<div class="stat-card"><div class="stat-n">' + _donations.length + '</div><div class="stat-l">Vehicle Donations</div></div>' +
+      '<div class="stat-card"><div class="stat-n">' + _donations.filter(function(d){ return d.matched_family_id; }).length + '</div><div class="stat-l">Matched Pairs</div></div>' +
+      '<div class="stat-card"><div class="stat-n">' + _applications.filter(function(a){ return a.status==='delivered'||a.status==='matched'; }).length + '</div><div class="stat-l">Families Helped</div></div>' +
+      '<div class="stat-card"><div class="stat-n">' + _repairApps.filter(function(a){ return a.status==='completed'; }).length + '</div><div class="stat-l">Cars Repaired</div></div>' +
+      '</div>';
+  }
+}
+
+async function saveStats() {
+  // Save visibility
+  var visChk = document.getElementById('stats-visible');
+  var visVal = visChk ? (visChk.checked ? 1 : 0) : 1;
+  var allKeys = STAT_KEYS.concat(['stats_visible']);
+  for (var i = 0; i < allKeys.length; i++) {
+    var key = allKeys[i];
+    var val;
+    if (key === 'stats_visible') {
+      val = visVal;
+    } else {
+      var inp = document.getElementById('stat-'+key);
+      val = inp && inp.value !== '' ? parseInt(inp.value) : null;
+    }
+    var payload = { key: key, value: val, updated_at: new Date().toISOString() };
+    var r = await sb.from('site_stats').upsert(payload, { onConflict: 'key' });
+    if (r && r.error) { toast('Save error for ' + key + ': ' + (r.error.message||JSON.stringify(r.error)), true); return; }
+  }
+  toast('Stats saved.');
+  await renderStatsForm();
+}
+
+// ── DELETE MATCHED PAIRS ──────────────────────────────────────────────────
+function confirmDeleteMatch(donationId, applicantId) {
+  openConfirm(
+    'Remove this match?',
+    'This will reset the vehicle and applicant back to certified / approved status. This cannot be undone.',
+    function() { deleteMatch(donationId, applicantId); }
+  );
+}
+async function deleteMatch(donationId, applicantId) {
+  try {
+    await Promise.all([
+      sb.from('vehicle_donations').update({status:'certified', matched_family_id: null}).eq('id', donationId),
+      sb.from('applications').update({status:'approved', matched_vehicle_id: null}).eq('id', applicantId)
+    ]);
+    var d = _donations.find(function(x){ return x.id === donationId; });
+    var a = _applications.find(function(x){ return x.id === applicantId; });
+    if (d) { d.status = 'certified'; d.matched_family_id = null; }
+    if (a) { a.status = 'approved'; a.matched_vehicle_id = null; }
+    renderMatchPanel(); renderDashboard();
+    toast('Match removed. Vehicle and applicant reset.');
+  } catch(e) {
+    toast('Error removing match.', true);
+  }
+}
+
+// ── CROP EDITOR ───────────────────────────────────────────────────────────
+// _cropBlobs stores finalized Blob per slot key so saves don't depend on DOM
+var _cropBlobs = {};
+
+// openCropEditor(inputId, shape, slot, previewId, labelId)
+//   shape: 'circle' | 'rect'
+//   slot:  string key into _cropBlobs (e.g. 'tm', 'sp', 'etm', 'esp')
+function openCropEditor(inputId, shape, slot, previewId, labelId) {
+  var input = document.getElementById(inputId);
+  if (!input || !input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    _showCropModal(e.target.result, shape, slot, previewId, labelId, file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+function _showCropModal(dataUrl, shape, slot, previewId, labelId, fileName) {
+  // Remove existing crop modal if any
+  var old = document.getElementById('cropModal');
+  if (old) old.remove();
+
+  var isCircle = shape === 'circle';
+  var SIZE = 280; // output px (square canvas, circle clipped by CSS)
+
+  var modal = document.createElement('div');
+  modal.id = 'cropModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:center;';
+
+  modal.innerHTML =
+    '<div style="background:var(--card);border-radius:12px;padding:1.5rem;width:360px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,0.5);">' +
+      '<div style="font-weight:700;font-size:1rem;margin-bottom:1rem;color:var(--fg);">Adjust ' + (isCircle ? 'Photo' : 'Logo') + '</div>' +
+      // Viewport
+      '<div id="cropViewport" style="width:' + SIZE + 'px;height:' + SIZE + 'px;overflow:hidden;position:relative;margin:0 auto 1rem;cursor:move;border-radius:' + (isCircle ? '50%' : '8px') + ';background:#111;touch-action:none;">' +
+        '<canvas id="cropCanvas" style="position:absolute;top:0;left:0;image-rendering:auto;"></canvas>' +
+      '</div>' +
+      // Zoom slider
+      '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">' +
+        '<span style="font-size:1rem;color:var(--muted);">&#128269;&#65293;</span>' +
+        '<input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" style="flex:1;accent-color:var(--blue,#2563eb);">' +
+        '<span style="font-size:1rem;color:var(--muted);">&#128269;&#65291;</span>' +
+      '</div>' +
+      '<div style="font-size:0.75rem;color:var(--muted);text-align:center;margin-bottom:1rem;">Drag to reposition · scroll or slider to zoom</div>' +
+      '<div style="display:flex;gap:0.75rem;justify-content:flex-end;">' +
+        '<button id="cropCancel" style="padding:0.55rem 1.1rem;border:1.5px solid var(--border);border-radius:6px;background:transparent;color:var(--fg);font-size:0.9rem;cursor:pointer;">Cancel</button>' +
+        '<button id="cropApply" style="padding:0.55rem 1.3rem;border:none;border-radius:6px;background:var(--blue,#2563eb);color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;">Apply</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+
+  var canvas = document.getElementById('cropCanvas');
+  var ctx = canvas.getContext('2d');
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+
+  var img = new Image();
+  img.onload = function() {
+    var state = { zoom: 1, x: 0, y: 0, dragging: false, lastX: 0, lastY: 0 };
+
+    function clampOffset(z, ox, oy) {
+      // natural size at current zoom
+      var iw = img.width * z, ih = img.height * z;
+      // how much can we pan?
+      var maxX = Math.max(0, (iw - SIZE) / 2);
+      var maxY = Math.max(0, (ih - SIZE) / 2);
+      return { x: Math.max(-maxX, Math.min(maxX, ox)), y: Math.max(-maxY, Math.min(maxY, oy)) };
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, SIZE, SIZE);
+      var iw = img.width * state.zoom;
+      var ih = img.height * state.zoom;
+      var dx = SIZE/2 - iw/2 + state.x;
+      var dy = SIZE/2 - ih/2 + state.y;
+      ctx.drawImage(img, dx, dy, iw, ih);
+    }
+
+    // init zoom so image fills the viewport
+    var initZ = Math.max(SIZE / img.width, SIZE / img.height);
+    state.zoom = initZ;
+    document.getElementById('cropZoom').min = initZ;
+    document.getElementById('cropZoom').max = initZ * 3;
+    document.getElementById('cropZoom').step = initZ * 0.01;
+    document.getElementById('cropZoom').value = initZ;
+    draw();
+
+    // Zoom slider
+    document.getElementById('cropZoom').addEventListener('input', function() {
+      var newZ = parseFloat(this.value);
+      var c = clampOffset(newZ, state.x, state.y);
+      state.zoom = newZ; state.x = c.x; state.y = c.y;
+      draw();
+    });
+
+    // Scroll-to-zoom on the viewport
+    document.getElementById('cropViewport').addEventListener('wheel', function(e) {
+      e.preventDefault();
+      var slider = document.getElementById('cropZoom');
+      var newZ = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), state.zoom - e.deltaY * 0.001 * initZ));
+      var c = clampOffset(newZ, state.x, state.y);
+      state.zoom = newZ; state.x = c.x; state.y = c.y;
+      slider.value = newZ;
+      draw();
+    }, { passive: false });
+
+    // Mouse drag
+    var vp = document.getElementById('cropViewport');
+    vp.addEventListener('mousedown', function(e) { state.dragging = true; state.lastX = e.clientX; state.lastY = e.clientY; e.preventDefault(); });
+    document.addEventListener('mousemove', function(e) {
+      if (!state.dragging) return;
+      var dx = e.clientX - state.lastX, dy = e.clientY - state.lastY;
+      state.lastX = e.clientX; state.lastY = e.clientY;
+      var c = clampOffset(state.zoom, state.x + dx, state.y + dy);
+      state.x = c.x; state.y = c.y;
+      draw();
+    });
+    document.addEventListener('mouseup', function() { state.dragging = false; });
+
+    // Touch drag
+    var lastTouch = null;
+    vp.addEventListener('touchstart', function(e) { if (e.touches.length===1) { lastTouch = e.touches[0]; } }, { passive: true });
+    vp.addEventListener('touchmove', function(e) {
+      if (e.touches.length===1 && lastTouch) {
+        var t = e.touches[0];
+        var dx = t.clientX - lastTouch.clientX, dy = t.clientY - lastTouch.clientY;
+        lastTouch = t;
+        var c = clampOffset(state.zoom, state.x + dx, state.y + dy);
+        state.x = c.x; state.y = c.y;
+        draw();
+      }
+    }, { passive: true });
+    vp.addEventListener('touchend', function() { lastTouch = null; }, { passive: true });
+
+    // Cancel
+    document.getElementById('cropCancel').onclick = function() { modal.remove(); };
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+
+    // Apply — render to output canvas, convert to blob, store + update preview
+    document.getElementById('cropApply').onclick = function() {
+      var out = document.createElement('canvas');
+      out.width = SIZE; out.height = SIZE;
+      var octx = out.getContext('2d');
+      if (isCircle) {
+        octx.beginPath(); octx.arc(SIZE/2, SIZE/2, SIZE/2, 0, Math.PI*2); octx.clip();
+      }
+      octx.drawImage(canvas, 0, 0);
+      out.toBlob(function(blob) {
+        _cropBlobs[slot] = blob;
+        // Update the preview thumbnail in the form
+        var prev = document.getElementById(previewId);
+        if (prev) {
+          prev.src = URL.createObjectURL(blob);
+          prev.style.display = 'block';
+        }
+        var lbl = document.getElementById(labelId);
+        if (lbl) lbl.textContent = fileName + ' (cropped)';
+        modal.remove();
+      }, 'image/jpeg', 0.92);
+    };
+  };
+  img.src = dataUrl;
+}
+
+// previewImg is kept as no-op shim (old onchange refs replaced below)
+function previewImg() {}
+
+async function uploadContentImageBlob(blob, folder, name) {
+  var safeName = (name || 'image').replace(/[^a-zA-Z0-9._-]/g, '-').toLowerCase();
+  var storagePath = folder + '/' + Date.now() + '-' + safeName + '.jpg';
+  var resp = await fetch(SUPABASE_URL + '/storage/v1/object/content-images/' + storagePath, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'image/jpeg',
+      'x-upsert': 'true'
+    },
+    body: blob
+  });
+  if (!resp.ok) {
+    var err = await resp.json().catch(function(){ return {}; });
+    throw new Error(err.message || err.error || ('Upload failed: ' + resp.status));
+  }
+  return SUPABASE_URL + '/storage/v1/object/public/content-images/' + storagePath;
+}
+
+// Legacy shim — still used in a few spots
+async function uploadContentImage(file, folder) {
+  return uploadContentImageBlob(file, folder, file.name);
+}
+
+// ── TEAM MEMBERS ─────────────────────────────────────────────────────────
+function renderTeamMembers() {
+  var el = document.getElementById('team-tbl');
+  if (!el) return;
+  if (!_teamMembers.length) { el.innerHTML = emptyState('No team members yet — add one above'); return; }
+  el.innerHTML = '<table class="dtbl"><thead><tr><th>Sort</th><th>Name</th><th>Role</th><th>Bio (preview)</th><th>Actions</th></tr></thead><tbody>' +
+    _teamMembers.map(function(m){
+      return '<tr>' +
+        '<td style="color:var(--muted);">' + (m.sort_order||0) + '</td>' +
+        '<td style="font-weight:600;">' + esc(m.name||'—') + '</td>' +
+        '<td style="font-size:0.8rem;">' + esc(m.role||'—') + '</td>' +
+        '<td style="font-size:0.8rem;max-width:280px;">' + esc((m.bio||'').slice(0,100)) + (m.bio && m.bio.length > 100 ? '…' : '') + '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<button class="btn-sm" style="background:var(--blue);color:#fff;border:none;border-radius:4px;padding:0.3rem 0.65rem;font-size:0.72rem;font-weight:600;cursor:pointer;margin-right:0.25rem;" onclick="editTeamMember(\'' + m.id + '\')">Edit</button>' +
+          '<button class="btn-danger-sm" onclick="confirmDeleteTeamMember(\'' + m.id + '\',\'' + esc(m.name||'') + '\')">Delete</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+}
+
+async function addTeamMember() {
+  var name  = document.getElementById('tm-name').value.trim();
+  var role  = document.getElementById('tm-role').value.trim();
+  var bio   = document.getElementById('tm-bio').value.trim();
+  var sort  = parseInt(document.getElementById('tm-sort').value) || 0;
+  if (!name || !role) { toast('Name and role are required.', true); return; }
+
+  var photoUrl = null;
+  if (_cropBlobs['tm']) {
+    toast('Uploading photo…');
+    try {
+      photoUrl = await uploadContentImageBlob(_cropBlobs['tm'], 'team', 'photo');
+    } catch(e) {
+      toast('Photo upload failed: ' + (e.message || e), true);
+      return;
+    }
+  }
+
+  var r = await sb.from('team_members').insert({ name: name, role: role, bio: bio, sort_order: sort, photo_url: photoUrl });
+  if (r.error) { toast('Error: ' + (r.error.message||JSON.stringify(r.error)), true); return; }
+  toast('Team member added.');
+  ['tm-name','tm-role','tm-bio','tm-sort'].forEach(function(id){ document.getElementById(id).value=''; });
+  delete _cropBlobs['tm'];
+  var prev = document.getElementById('tm-img-preview');
+  if (prev) { prev.src=''; prev.style.display='none'; }
+  var lbl = document.getElementById('tm-img-label');
+  if (lbl) lbl.textContent = 'Click to upload photo';
+  loadAllData();
+}
+
+function editTeamMember(id) {
+  var m = _teamMembers.find(function(x){ return x.id === id || String(x.id) === String(id); });
+  if (!m) return;
+  delete _cropBlobs['etm']; // clear any leftover blob from a previous edit
+  document.getElementById('confirmTitle').textContent = 'Edit Team Member';
+  var currentPhotoHtml = m.photo_url
+    ? '<img src="' + esc(m.photo_url) + '" style="width:60px;height:60px;border-radius:50%;object-fit:cover;display:block;margin-bottom:0.4rem;"/>'
+    : '<div style="width:60px;height:60px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:var(--muted);margin-bottom:0.4rem;">' + esc((m.name||'?').split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase()) + '</div>';
+  document.getElementById('confirmBody').innerHTML =
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Name</label><input id="etm-name" type="text" value="' + esc(m.name) + '" style="width:100%;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;margin-bottom:0.75rem;"/></div>' +
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Role</label><input id="etm-role" type="text" value="' + esc(m.role) + '" style="width:100%;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;margin-bottom:0.75rem;"/></div>' +
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Bio</label><textarea id="etm-bio" style="width:100%;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;resize:vertical;min-height:90px;outline:none;margin-bottom:0.75rem;">' + esc(m.bio||'') + '</textarea></div>' +
+    '<div style="display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start;margin-bottom:0.75rem;">' +
+      '<div>' + currentPhotoHtml + '<div style="font-size:0.72rem;color:var(--muted);">Current</div></div>' +
+      '<div class="form-field" style="margin-bottom:0;"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Replace Photo (optional)</label>' +
+        '<div id="etm-img-wrap" style="border:1.5px dashed var(--border);border-radius:6px;padding:0.75rem;text-align:center;cursor:pointer;background:var(--off);" onclick="document.getElementById(\'etm-img-file\').click()">' +
+          '<input type="file" id="etm-img-file" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="openCropEditor(\'etm-img-file\',\'circle\',\'etm\',\'etm-img-preview\',\'etm-img-label\')"/>' +
+          '<img id="etm-img-preview" src="" style="display:none;max-height:60px;max-width:100%;border-radius:50%;margin-bottom:0.3rem;object-fit:cover;width:60px;height:60px;"/>' +
+          '<div id="etm-img-label" style="font-size:0.78rem;color:var(--muted);">Click to upload new photo</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Sort Order</label><input id="etm-sort" type="number" value="' + (m.sort_order||0) + '" style="width:100px;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;"/></div>';
+  document.querySelector('.confirm-box').classList.add('wide');
+  document.getElementById('confirmOkBtn').style.display = '';
+  document.getElementById('confirmOkBtn').textContent = 'Save';
+  document.getElementById('confirmOkBtn').onclick = function() {
+    saveTeamMember(id);
+  };
+  document.querySelector('#confirmModal .confirm-actions .btn').textContent = 'Cancel';
+  document.getElementById('confirmModal').classList.add('active');
+}
+
+async function saveTeamMember(id) {
+  var name = document.getElementById('etm-name').value.trim();
+  var role = document.getElementById('etm-role').value.trim();
+  var bio  = document.getElementById('etm-bio').value.trim();
+  var sort = parseInt(document.getElementById('etm-sort').value) || 0;
+  if (!name || !role) { toast('Name and role are required.', true); return; }
+
+  var updates = { name: name, role: role, bio: bio, sort_order: sort };
+  if (_cropBlobs['etm']) {
+    toast('Uploading photo…');
+    try {
+      updates.photo_url = await uploadContentImageBlob(_cropBlobs['etm'], 'team', 'photo');
+      delete _cropBlobs['etm'];
+    } catch(e) {
+      toast('Photo upload failed: ' + (e.message || e), true);
+      return;
+    }
+  }
+
+  closeConfirm();
+  var r = await sb.from('team_members').update(updates).eq('id', id);
+  if (r && r.error) { toast('Error saving: ' + (r.error.message||JSON.stringify(r.error)), true); return; }
+  toast('Team member updated.');
+  loadAllData();
+}
+
+function confirmDeleteTeamMember(id, name) {
+  openConfirm('Delete team member?','Delete "' + name + '"? This cannot be undone.', function(){ deleteTeamMember(id); });
+}
+async function deleteTeamMember(id) {
+  var r = await sb.from('team_members').delete().eq('id', id);
+  if (r.error) { toast('Error: ' + r.error.message, true); return; }
+  _teamMembers = _teamMembers.filter(function(x){ return String(x.id) !== String(id); });
+  renderTeamMembers(); toast('Deleted.');
+}
+
+// ── SPONSORS ─────────────────────────────────────────────────────────────
+function renderSponsors() {
+  var el = document.getElementById('sponsors-tbl');
+  if (!el) return;
+  if (!_sponsors.length) { el.innerHTML = emptyState('No sponsors yet — add one above'); return; }
+  el.innerHTML = '<table class="dtbl"><thead><tr><th>Sort</th><th>Name</th><th>Type</th><th>Description (preview)</th><th>Tags</th><th>Actions</th></tr></thead><tbody>' +
+    _sponsors.map(function(s){
+      return '<tr>' +
+        '<td style="color:var(--muted);">' + (s.sort_order||0) + '</td>' +
+        '<td style="font-weight:600;">' + esc(s.name||'—') + '</td>' +
+        '<td style="font-size:0.8rem;">' + esc(s.type||'—') + '</td>' +
+        '<td style="font-size:0.8rem;max-width:220px;">' + esc((s.description||'').slice(0,80)) + (s.description && s.description.length > 80 ? '…' : '') + '</td>' +
+        '<td style="font-size:0.75rem;color:var(--muted);">' + esc((s.tags||'').slice(0,50)) + '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<button class="btn-sm" style="background:var(--blue);color:#fff;border:none;border-radius:4px;padding:0.3rem 0.65rem;font-size:0.72rem;font-weight:600;cursor:pointer;margin-right:0.25rem;" onclick="editSponsor(\'' + s.id + '\')">Edit</button>' +
+          '<button class="btn-danger-sm" onclick="confirmDeleteSponsor(\'' + s.id + '\',\'' + esc(s.name||'') + '\')">Delete</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+}
+
+async function addSponsor() {
+  var name    = document.getElementById('sp-name').value.trim();
+  var type    = document.getElementById('sp-type').value.trim();
+  var desc    = document.getElementById('sp-desc').value.trim();
+  var tags    = document.getElementById('sp-tags').value.trim();
+  var website = document.getElementById('sp-website').value.trim();
+  var sort    = parseInt(document.getElementById('sp-sort').value) || 0;
+  if (!name || !type) { toast('Name and type are required.', true); return; }
+
+  var logoUrl = null;
+  if (_cropBlobs['sp']) {
+    toast('Uploading logo…');
+    try {
+      logoUrl = await uploadContentImageBlob(_cropBlobs['sp'], 'sponsors', 'logo');
+    } catch(e) {
+      toast('Logo upload failed: ' + (e.message || e), true);
+      return;
+    }
+  }
+
+  var r = await sb.from('sponsors').insert({ name: name, type: type, description: desc||'', tags: tags||'', website: website||null, logo_url: logoUrl, sort_order: sort });
+  if (r.error) { toast('Error: ' + (r.error.message||JSON.stringify(r.error)), true); return; }
+  toast('Sponsor added.');
+  ['sp-name','sp-type','sp-desc','sp-tags','sp-website','sp-sort'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  delete _cropBlobs['sp'];
+  var prev = document.getElementById('sp-img-preview');
+  if (prev) { prev.src=''; prev.style.display='none'; }
+  var lbl = document.getElementById('sp-img-label');
+  if (lbl) lbl.textContent = 'Click to upload logo';
+  loadAllData();
+}
+
+function editSponsor(id) {
+  var s = _sponsors.find(function(x){ return x.id === id || String(x.id) === String(id); });
+  if (!s) return;
+  delete _cropBlobs['esp']; // clear any leftover blob from a previous edit
+  document.getElementById('confirmTitle').textContent = 'Edit Sponsor';
+  document.getElementById('confirmBody').innerHTML =
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Name</label><input id="esp-name" type="text" value="' + esc(s.name) + '" style="width:100%;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;margin-bottom:0.75rem;"/></div>' +
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Type</label><input id="esp-type" type="text" value="' + esc(s.type||'') + '" style="width:100%;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;margin-bottom:0.75rem;"/></div>' +
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Description</label><textarea id="esp-desc" style="width:100%;padding:0.65rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;resize:vertical;min-height:80px;outline:none;margin-bottom:0.75rem;">' + esc(s.description||'') + '</textarea></div>' +
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Tags (comma-separated)</label><input id="esp-tags" type="text" value="' + esc(s.tags||'') + '" style="width:100%;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;margin-bottom:0.75rem;"/></div>' +
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Website URL</label><input id="esp-website" type="text" value="' + esc(s.website||'') + '" style="width:100%;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;margin-bottom:0.75rem;"/></div>' +
+    '<div style="display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start;margin-bottom:0.75rem;">' +
+      (s.logo_url
+        ? '<div><img src="' + esc(s.logo_url) + '" style="max-height:60px;max-width:120px;object-fit:contain;display:block;margin-bottom:0.3rem;border-radius:4px;"/><div style="font-size:0.72rem;color:var(--muted);">Current</div></div>'
+        : '<div style="width:60px;height:60px;background:var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--muted);">None</div>') +
+      '<div class="form-field" style="margin-bottom:0;"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Replace Logo (optional)</label>' +
+        '<div id="esp-img-wrap" style="border:1.5px dashed var(--border);border-radius:6px;padding:0.75rem;text-align:center;cursor:pointer;background:var(--off);" onclick="document.getElementById(\'esp-img-file\').click()">' +
+          '<input type="file" id="esp-img-file" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="openCropEditor(\'esp-img-file\',\'rect\',\'esp\',\'esp-img-preview\',\'esp-img-label\')"/>' +
+          '<img id="esp-img-preview" src="" style="display:none;max-height:50px;max-width:140px;border-radius:4px;margin-bottom:0.3rem;object-fit:contain;"/>' +
+          '<div id="esp-img-label" style="font-size:0.78rem;color:var(--muted);">Click to upload new logo</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="form-field"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Sort Order</label><input id="esp-sort" type="number" value="' + (s.sort_order||0) + '" style="width:100px;padding:0.6rem 0.875rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.9rem;font-family:inherit;outline:none;"/></div>';
+  document.querySelector('.confirm-box').classList.add('wide');
+  document.getElementById('confirmOkBtn').style.display = '';
+  document.getElementById('confirmOkBtn').textContent = 'Save';
+  document.getElementById('confirmOkBtn').onclick = function() { saveSponsor(id); };
+  document.querySelector('#confirmModal .confirm-actions .btn').textContent = 'Cancel';
+  document.getElementById('confirmModal').classList.add('active');
+}
+
+async function saveSponsor(id) {
+  var name    = document.getElementById('esp-name').value.trim();
+  var type    = document.getElementById('esp-type').value.trim();
+  var desc    = document.getElementById('esp-desc').value.trim();
+  var tags    = document.getElementById('esp-tags').value.trim();
+  var website = document.getElementById('esp-website').value.trim();
+  var sort    = parseInt(document.getElementById('esp-sort').value) || 0;
+  if (!name || !type) { toast('Name and type are required.', true); return; }
+
+  var updates = { name: name, type: type, description: desc||'', tags: tags||'', website: website||null, sort_order: sort };
+  if (_cropBlobs['esp']) {
+    toast('Uploading logo…');
+    try {
+      updates.logo_url = await uploadContentImageBlob(_cropBlobs['esp'], 'sponsors', 'logo');
+      delete _cropBlobs['esp'];
+    } catch(e) {
+      toast('Logo upload failed: ' + (e.message || e), true);
+      return;
+    }
+  }
+
+  closeConfirm();
+  var r = await sb.from('sponsors').update(updates).eq('id', id);
+  if (r && r.error) { toast('Error saving: ' + (r.error.message||JSON.stringify(r.error)), true); return; }
+  toast('Sponsor updated.');
+  loadAllData();
+}
+
+function confirmDeleteSponsor(id, name) {
+  openConfirm('Delete sponsor?','Delete "' + name + '"? This cannot be undone.', function(){ deleteSponsor(id); });
+}
+async function deleteSponsor(id) {
+  var r = await sb.from('sponsors').delete().eq('id', id);
+  if (r.error) { toast('Error: ' + r.error.message, true); return; }
+  _sponsors = _sponsors.filter(function(x){ return String(x.id) !== String(id); });
+  renderSponsors(); toast('Deleted.');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(iso) {
+  if (!iso) return '-';
+  return iso.slice(0,10);
+}
+function badge(status) {
+  if (!status) return '';
+  return '<span class="badge badge-' + status + '">' + status + '</span>';
+}
+function emptyState(msg) {
+  return '<div class="empty-state"><div class="empty-icon"></div><div class="empty-title">' + msg + '</div></div>';
+}
+function toast(msg, isErr) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? 'var(--red)' : 'var(--ink)';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>

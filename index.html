@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Effective Care accepts donated vehicles and provides them  -  free  -  to BC families who need reliable transportation."/>
+<title>Home | Effective Care</title>
+<link rel="icon" type="image/png" href="favicon.png"/>
+<link rel="stylesheet" href="style.css"/>
+<script defer data-domain="effectivecare.ca" src="https://plausible.io/js/script.js"></script>
+</head>
+<body><nav id="mainNav">
+  <a href="index.html" class="nav-brand">
+    <img src="logo-white.png" alt="Effective Care"/>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Home</a>
+    <div class="nav-dropdown">
+      <a href="about.html" class="">About</a>
+      <div class="nav-drop-menu">
+        <a href="about.html">About Us</a>
+        <a href="for-donors.html">For Donors</a>
+        <a href="for-recipients.html">For Recipients</a>
+        <a href="who-we-serve.html">Who We Serve</a>
+      </div>
+    </div>
+    <a href="how-it-works.html" class="">How It Works</a>
+    <a href="testimonials.html" class="">Testimonials</a>
+    <a href="faq.html" class="">FAQ</a>
+    <a href="contact.html" class="">Contact</a>
+    <a href="sponsors.html" class="">Sponsors</a>
+    <a href="portal.html" class="">Portal</a>
+    <a href="donate.html" class="nav-donate">Donate a Vehicle</a>
+  </div>
+  <div class="nav-right-mobile">
+    <a href="donate.html" class="nav-donate-mobile">Donate</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About Us</a>
+  <a href="for-donors.html">For Donors</a>
+  <a href="for-recipients.html">For Recipients</a>
+  <a href="who-we-serve.html">Who We Serve</a>
+  <a href="how-it-works.html">How It Works</a>
+  <a href="testimonials.html">Testimonials</a>
+  <a href="faq.html">FAQ</a>
+  <a href="contact.html">Contact</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="portal.html">Portal</a>
+  <a href="donate.html" class="mobile-donate">Donate a Vehicle</a>
+</div>
+<div class="hero">
+  <img src="photo-hero.jpg" class="hero-img" alt="British Columbia highway"/>
+  <div class="hero-overlay"></div>
+  <div class="hero-content container">
+    <p class="hero-eyebrow">BC Registered Charity &nbsp;&middot;&nbsp; Est. 2026</p>
+    <h1 class="hero-headline">Keep It Moving</h1>
+    <p class="hero-sub">We accept donated vehicles and provide them &mdash; fully inspected and certified &mdash; to BC families who need reliable transportation but cannot afford it.</p>
+    <div class="hero-actions">
+      <a href="donate.html" class="btn-white">Donate a Vehicle</a>
+      <a href="portal.html" class="btn-ghost">Apply for a Car</a>
+      <a href="portal.html#repair" class="btn-ghost" style="border-color:rgba(255,200,80,0.7);color:#ffc850;">Fix My Car</a>
+    </div>
+  </div>
+
+  <!-- STAT TILES — inside hero, flush at bottom over the photo -->
+  <div id="stats-section" style="display:flex;position:relative;z-index:2;border-top:1px solid rgba(255,255,255,0.15);background:rgba(10,22,40,0.45);backdrop-filter:blur(10px);">
+    <div style="flex:1;padding:1.1rem 0.75rem;text-align:center;border-right:1px solid rgba(255,255,255,0.1);">
+      <div id="stat-total-donations" style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Georgia,serif;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,0.5);">0</div>
+      <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Total Donations</div>
+    </div>
+    <div style="flex:1;padding:1.1rem 0.75rem;text-align:center;border-right:1px solid rgba(255,255,255,0.1);">
+      <div id="stat-matched-pairs" style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Georgia,serif;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,0.5);">0</div>
+      <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Matched Pairs</div>
+    </div>
+    <div style="flex:1;padding:1.1rem 0.75rem;text-align:center;border-right:1px solid rgba(255,255,255,0.1);">
+      <div id="stat-families-helped" style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Georgia,serif;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,0.5);">0</div>
+      <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Families Helped</div>
+    </div>
+    <div style="flex:1;padding:1.1rem 0.75rem;text-align:center;">
+      <div id="stat-cars-repaired" style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Georgia,serif;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,0.5);">0</div>
+      <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Cars Repaired</div>
+    </div>
+  </div>
+</div>
+
+<!-- REPAIR ASSISTANCE BANNER — high up, right after stats -->
+<section style="background:linear-gradient(135deg,#1a3a2a 0%,#0b2045 100%);padding:3rem 0;">
+  <div class="container" style="max-width:960px;">
+    <div style="display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:260px;">
+        <p style="font-size:0.75rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#ffc850;margin-bottom:0.6rem;">Car Repair Assistance — Our Priority Right Now</p>
+        <h2 style="font-family:Georgia,serif;font-size:clamp(1.5rem,3vw,2.1rem);color:#fff;margin-bottom:0.75rem;line-height:1.25;">Your car is broken. You can't afford to fix it. We can help.</h2>
+        <p style="font-size:0.95rem;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:1.5rem;">If you already own a vehicle but can't afford repairs — a brake job, an alternator, a timing belt — our program connects you with certified mechanics who volunteer their time. Labour is free. Apply through the portal.</p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+          <a href="portal.html" class="btn-primary" style="background:#ffc850;color:#0b2045;border:none;">Apply for Repair Assistance</a>
+          <a href="how-it-works.html" style="color:rgba(255,255,255,0.65);font-size:0.875rem;text-decoration:none;align-self:center;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:1px;">How it works →</a>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;flex-shrink:0;">
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:1rem 1.25rem;">
+          <div style="font-size:1.4rem;margin-bottom:0.3rem;"></div>
+          <div style="font-weight:700;color:#fff;font-size:0.875rem;margin-bottom:0.2rem;">Free labour</div>
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.6);">Certified volunteer mechanics</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:1rem 1.25rem;">
+          <div style="font-size:1.4rem;margin-bottom:0.3rem;"></div>
+          <div style="font-weight:700;color:#fff;font-size:0.875rem;margin-bottom:0.2rem;">Need-based</div>
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.6);">Priority for work &amp; medical trips</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:1rem 1.25rem;">
+          <div style="font-size:1.4rem;margin-bottom:0.3rem;"></div>
+          <div style="font-weight:700;color:#fff;font-size:0.875rem;margin-bottom:0.2rem;">BC residents</div>
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.6);">Vehicle registered in your name</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:1rem 1.25rem;">
+          <div style="font-size:1.4rem;margin-bottom:0.3rem;"></div>
+          <div style="font-weight:700;color:#fff;font-size:0.875rem;margin-bottom:0.2rem;">Free to apply</div>
+          <div style="font-size:0.78rem;color:rgba(255,255,255,0.6);">No obligation, no cost</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container two-col-story">
+    <div class="story-img-wrap">
+      <img src="photo-hands.jpg" alt="Hands" class="story-img"/>
+    </div>
+    <div class="story-text">
+      <p class="label-tag">Why We Exist</p>
+      <h2 class="h2" style="max-width:560px;font-size:clamp(1.35rem,2.4vw,1.75rem);">A reliable vehicle is the difference between keeping a job and losing it.</h2>
+      <p class="body">In BC, car-dependent communities stretch across the Lower Mainland and beyond. Families who cannot afford a vehicle cannot access employment, healthcare, or school  -  not because they lack the will, but because they lack the means.</p>
+      <p class="body" style="margin-top:1rem;">Effective Care was born in a family collision repair shop. We take cars that have outlived their usefulness for one person and give them a new purpose  -  inspected, certified, and matched to the family that needs them most.</p>
+      <a href="about.html" class="link-arrow">Our story &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-off">
+  <div class="container">
+    <p class="label-tag text-center">How It Works</p>
+    <h2 class="h2 text-center">Three steps. One family with keys in hand</h2>
+    <div class="process-cards">
+      <div class="process-card">
+        <div class="process-card-img"><img src="photo-donate.jpg" alt="Donate"/></div>
+        <div class="process-card-body">
+          <div class="process-num">01</div>
+          <h3 class="process-title">You donate your vehicle</h3>
+          <p class="process-desc">Any make, model, or year  -  running or not. Drop it off at our partner shop and we handle the paperwork. We issue your CRA tax receipt promptly.</p>
+          <a href="donate.html" class="link-sm">Donate a vehicle &rarr;</a>
+        </div>
+      </div>
+      <div class="process-card">
+        <div class="process-card-img"><img src="photo-inspect1.jpg" alt="Certify"/></div>
+        <div class="process-card-body">
+          <div class="process-num">02</div>
+          <h3 class="process-title">We inspect and certify</h3>
+          <p class="process-desc">Every vehicle goes through a full mechanical inspection at Effective Autobody. We repair what is needed and certify it as road-safe before anyone receives it.</p>
+          <a href="how-it-works.html" class="link-sm">See the full process &rarr;</a>
+        </div>
+      </div>
+      <div class="process-card">
+        <div class="process-card-img"><img src="photo-handoff.jpg" alt="Keys"/></div>
+        <div class="process-card-body">
+          <div class="process-num">03</div>
+          <h3 class="process-title">A family receives the keys</h3>
+          <p class="process-desc">The family with the most demonstrated need is matched first. They receive the vehicle at no cost. You stay connected through our "See Your Car" dashboard.</p>
+          <a href="portal.html" class="link-sm">Apply for a car &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-dark">
+  <div class="container">
+    <div class="see-your-car-layout">
+      <div class="syc-text">
+        <p class="label-tag light">See Your Car</p>
+        <h2 class="h2 light">Your car keeps moving.<br>You stay connected.</h2>
+        <p class="body light">Most vehicle donation programs end at drop-off. Ours does not. With the recipient family's consent, you receive a private dashboard showing anonymized updates  -  trips taken, milestones, and messages of gratitude.</p>
+        <p class="body light" style="margin-top:1rem;">No names. No addresses. Just the knowledge that your car is still moving someone forward.</p>
+        <a href="how-it-works.html" class="btn-blue-outline" style="margin-top:2rem;display:inline-block;">Why Donate With Us &rarr;</a>
+      </div>
+      <div class="syc-mock">
+        <div class="mock-label">Example Donor Updates</div>
+        <div class="mock-update">
+          <div class="mock-meta">Month 1 &middot; Placement confirmed</div>
+          <p class="mock-msg">"The car arrived in perfect condition. We drove it to school registration the same day."</p>
+        </div>
+        <div class="mock-update">
+          <div class="mock-meta">Month 3 &middot; New job secured</div>
+          <p class="mock-msg">"I accepted a full-time job last week. I could not have done it without reliable transportation."</p>
+        </div>
+        <div class="mock-update">
+          <div class="mock-meta">Month 6 &middot; First road trip as a family</div>
+          <p class="mock-msg">"Both kids made every appointment this year. Thank you for keeping us moving."</p>
+        </div>
+        <p class="mock-note">All updates anonymized with recipient consent.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container story-pull">
+    <div class="pull-bar"></div>
+    <blockquote class="pull-quote">"Effective Autobody has been part of this community for 17 years. When the shop burned down, the community showed up for us. Effective Care is how we show up back."</blockquote>
+    <p class="pull-attr">Zack Zhou &nbsp;&middot;&nbsp; Founder, Effective Care &nbsp;&middot;&nbsp; Metro Vancouver</p>
+  </div>
+</section>
+
+
+<section class="section bg-off">
+  <div class="container" style="max-width:1100px;">
+    <p class="label-tag text-center" style="margin-bottom:0.5rem;">Three ways we help</p>
+    <h2 class="h2 text-center" style="margin-bottom:2.5rem;">How can we help you today?</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;">
+      <div class="cta-panel cta-panel-primary">
+        <p class="cta-label">Have a vehicle to give?</p>
+        <h3 class="cta-title">Donate your car and watch it change a life.</h3>
+        <p class="cta-desc">Any make, model, or year. Running or not. Free to donate. We issue your CRA tax receipt promptly.</p>
+        <a href="donate.html" class="btn-primary">Donate a Vehicle</a>
+      </div>
+      <div style="background:#1a3a2a;border-radius:12px;padding:2rem;display:flex;flex-direction:column;gap:0.75rem;">
+        <p class="cta-label" style="color:#ffc850;">Car broken down?</p>
+        <h3 class="cta-title" style="color:#fff;">Get it fixed — free labour, certified mechanics.</h3>
+        <p class="cta-desc" style="color:rgba(255,255,255,0.75);">Already own a vehicle but can't afford repairs? We cover the labour cost through our volunteer mechanic program. Parts at cost where possible.</p>
+        <a href="portal.html" class="btn-primary" style="background:#ffc850;color:#0b2045;border:none;margin-top:auto;">Apply for Repair Help</a>
+      </div>
+      <div class="cta-panel cta-panel-light">
+        <p class="cta-label">Need a vehicle?</p>
+        <h3 class="cta-title">Apply for a certified car — at no cost.</h3>
+        <p class="cta-desc">Free to apply. Free to receive. A fair, need-based process open to any BC resident.</p>
+        <a href="portal.html" class="btn-secondary">Start Your Application</a>
+      </div>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand-col">
+      <div class="footer-logo">Effective Care</div>
+      <p class="footer-tagline">Keep It Moving.</p>
+      <a href="tel:7782685996" class="footer-email" style="display:block;margin-bottom:0.25rem;">778 268 5996</a><a href="mailto:info@effectivecare.ca" class="footer-email">info@effectivecare.ca</a>
+    </div>
+    <div>
+      <div class="footer-col-title">Organization</div>
+      <ul class="footer-links">
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="how-it-works.html">How It Works</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Take Action</div>
+      <ul class="footer-links">
+        <li><a href="donate.html">Donate a Vehicle</a></li>
+        <li><a href="portal.html">Apply for a Car</a></li>
+        <li><a href="testimonials.html">Testimonials</a></li>
+        <li><a href="sponsors.html">Become a Sponsor</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Use</a></li>
+        <li><a href="cra.html">CRA Charity Info</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Effective Care Society &nbsp;&middot;&nbsp; CRA Registered Charity &nbsp;&middot;&nbsp; British Columbia, Canada</span>
+  </div>
+</footer>
+<script src="main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.46.2/dist/umd/supabase.js"></script>
+<script>
+(function() {
+  var SUPABASE_URL = 'https://jzyfiagualwvmznnnvoy.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_RO133yoq9HSXyx1igzsRVQ_ot4ahVAs';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── ODOMETER ANIMATION ──────────────────────────────────────────────────
+  // Eases out using ln: fast at start, decelerates near target value
+  function animateCounter(el, target, duration) {
+    if (!el) return;
+    if (!target || target <= 0) { el.textContent = target || 0; return; }
+    var start = performance.now();
+    function tick(now) {
+      var elapsed = now - start;
+      var t = Math.min(elapsed / duration, 1);
+      // easeOut via ln: maps t(0..1) → smooth deceleration
+      var eased = t === 1 ? 1 : 1 - Math.pow(1 - t, 3);
+      var current = Math.round(eased * target);
+      el.textContent = current.toLocaleString('en-CA');
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = target.toLocaleString('en-CA');
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // Set stat numbers directly (stats bar is always visible at top of page)
+  function displayStats(stats) {
+    animateCounter(document.getElementById('stat-total-donations'), stats.total_donations, 1800);
+    animateCounter(document.getElementById('stat-matched-pairs'),   stats.matched_pairs,   2000);
+    animateCounter(document.getElementById('stat-families-helped'), stats.families_helped, 2200);
+    animateCounter(document.getElementById('stat-cars-repaired'),   stats.cars_repaired,   2400);
+  }
+
+  // Load stats from DB: via secure RPC (no private table access) + optional manual overrides from site_stats
+  async function loadStats() {
+    try {
+      var results = await Promise.all([
+        sb.rpc('get_public_stats'),
+        sb.from('site_stats').select('*')
+      ]);
+
+      var rpcData   = results[0].data || {};
+      var statsRows = results[1].data || [];
+
+      // Live values come from the secure server-side function
+      var live = {
+        total_donations:  rpcData.total_donations  || 0,
+        matched_pairs:    rpcData.matched_pairs    || 0,
+        families_helped:  rpcData.families_helped  || 0,
+        cars_repaired:    rpcData.cars_repaired    || 0
+      };
+
+      // Apply manual overrides where set
+      var overrides = {};
+      statsRows.forEach(function(row){ overrides[row.key] = row.value; });
+      var stats = {
+        total_donations:  (overrides.total_donations  !== null && overrides.total_donations  !== undefined) ? overrides.total_donations  : live.total_donations,
+        matched_pairs:    (overrides.matched_pairs    !== null && overrides.matched_pairs    !== undefined) ? overrides.matched_pairs    : live.matched_pairs,
+        families_helped:  (overrides.families_helped  !== null && overrides.families_helped  !== undefined) ? overrides.families_helped  : live.families_helped,
+        cars_repaired:    (overrides.cars_repaired    !== null && overrides.cars_repaired    !== undefined) ? overrides.cars_repaired    : live.cars_repaired
+      };
+
+      // Show/hide based on stats_visible flag (default: visible if no row or value !== 0)
+      var visRow = overrides.stats_visible;
+      var isVisible = (visRow === null || visRow === undefined) ? true : visRow !== 0;
+      var section = document.getElementById('stats-section');
+      if (section) section.style.display = isVisible ? 'flex' : 'none';
+
+      displayStats(stats);
+    } catch(e) {
+      console.error('Stats load error:', e);
+    }
+  }
+
+  loadStats();
+})();
+</script>
+
+<script>
+// ── SCROLL ANIMATIONS ──────────────────────────────────────────────────────
+// Warm, community-focused: gentle fade-up on enter, slight stagger for cards.
+(function() {
+  var style = document.createElement('style');
+  style.textContent = [
+    '.ec-reveal { opacity:0; transform:translateY(28px); transition:opacity 0.65s cubic-bezier(.25,.8,.25,1), transform 0.65s cubic-bezier(.25,.8,.25,1); }',
+    '.ec-reveal.ec-visible { opacity:1; transform:translateY(0); }',
+    '.ec-reveal-left { opacity:0; transform:translateX(-30px); transition:opacity 0.6s cubic-bezier(.25,.8,.25,1), transform 0.6s cubic-bezier(.25,.8,.25,1); }',
+    '.ec-reveal-left.ec-visible { opacity:1; transform:translateX(0); }',
+    '.ec-reveal-right { opacity:0; transform:translateX(30px); transition:opacity 0.6s cubic-bezier(.25,.8,.25,1), transform 0.6s cubic-bezier(.25,.8,.25,1); }',
+    '.ec-reveal-right.ec-visible { opacity:1; transform:translateX(0); }',
+    '.ec-stagger .ec-reveal:nth-child(2) { transition-delay:0.12s; }',
+    '.ec-stagger .ec-reveal:nth-child(3) { transition-delay:0.24s; }',
+    '.ec-stagger .ec-reveal:nth-child(4) { transition-delay:0.36s; }',
+    '.ec-stagger .ec-reveal:nth-child(5) { transition-delay:0.48s; }',
+    '.impact-stat { transition: opacity 0.55s ease, transform 0.55s ease; }',
+    '@media (prefers-reduced-motion:reduce) { .ec-reveal,.ec-reveal-left,.ec-reveal-right { transition:none !important; opacity:1 !important; transform:none !important; } }'
+  ].join('\n');
+  document.head.appendChild(style);
+
+  // Annotate elements
+  function markReveal(sel, cls, stagger) {
+    var els = document.querySelectorAll(sel);
+    for (var i = 0; i < els.length; i++) {
+      els[i].classList.add(cls || 'ec-reveal');
+      if (stagger && i > 0) {
+        els[i].style.transitionDelay = (i * 0.13) + 's';
+      }
+    }
+  }
+
+  markReveal('.impact-strip .impact-stat', 'ec-reveal', true);
+  markReveal('.story-text', 'ec-reveal');
+  markReveal('.story-img-wrap', 'ec-reveal-left');
+  markReveal('.process-card', 'ec-reveal', true);
+  markReveal('.syc-text', 'ec-reveal-left');
+  markReveal('.syc-mock', 'ec-reveal-right');
+  markReveal('.pull-quote', 'ec-reveal');
+  markReveal('.pull-attr', 'ec-reveal');
+  markReveal('.cta-panel', 'ec-reveal', true);
+
+  // Stagger pull-quote bar
+  var pullBar = document.querySelector('.pull-bar');
+  if (pullBar) pullBar.classList.add('ec-reveal');
+
+  // Observer
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('ec-visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  var animated = document.querySelectorAll('.ec-reveal,.ec-reveal-left,.ec-reveal-right');
+  for (var j = 0; j < animated.length; j++) {
+    io.observe(animated[j]);
+  }
+})();
+</script>
+</body></html>

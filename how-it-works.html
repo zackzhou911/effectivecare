@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Effective Care connects donated vehicles with BC families who need reliable transportation most."/>
+<title>How It Works | Effective Care</title>
+<link rel="icon" type="image/png" href="favicon.png"/>
+<link rel="stylesheet" href="style.css"/>
+<script defer data-domain="effectivecare.ca" src="https://plausible.io/js/script.js"></script>
+<style>
+@media(max-width:640px){.help-two-col{grid-template-columns:1fr!important;}}
+</style>
+</head>
+<body><nav id="mainNav">
+  <a href="index.html" class="nav-brand">
+    <img src="logo-white.png" alt="Effective Care"/>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="">Home</a>
+    <div class="nav-dropdown">
+      <a href="about.html" class="">About</a>
+      <div class="nav-drop-menu">
+        <a href="about.html">About Us</a>
+        <a href="for-donors.html">For Donors</a>
+        <a href="for-recipients.html">For Recipients</a>
+        <a href="who-we-serve.html">Who We Serve</a>
+      </div>
+    </div>
+    <a href="how-it-works.html" class="active">How It Works</a>
+    <a href="testimonials.html" class="">Testimonials</a>
+    <a href="faq.html" class="">FAQ</a>
+    <a href="contact.html" class="">Contact</a>
+    <a href="sponsors.html" class="">Sponsors</a>
+    <a href="portal.html" class="">Portal</a>
+    <a href="donate.html" class="nav-donate">Donate a Vehicle</a>
+  </div>
+  <div class="nav-right-mobile">
+    <a href="donate.html" class="nav-donate-mobile">Donate</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About Us</a>
+  <a href="for-donors.html">For Donors</a>
+  <a href="for-recipients.html">For Recipients</a>
+  <a href="who-we-serve.html">Who We Serve</a>
+  <a href="how-it-works.html">How It Works</a>
+  <a href="testimonials.html">Testimonials</a>
+  <a href="faq.html">FAQ</a>
+  <a href="contact.html">Contact</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="portal.html">Portal</a>
+  <a href="donate.html" class="mobile-donate">Donate a Vehicle</a>
+</div><div class="page-hero">
+  <img src="photo-together.jpg" class="page-hero-img" style="object-position:center 60%" alt="How It Works"/>
+  <div class="page-hero-overlay">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Home</a> &rsaquo; How It Works</div>
+      <h1 class="page-hero-title">How It Works</h1>
+      <p class="page-hero-sub">Two journeys. One mission. From donation to key handover.</p>
+    </div>
+  </div>
+</div>
+<section class="section">
+  <div class="container narrow text-center">
+    <p class="label-tag">Overview</p>
+    <h2 class="h2">One chain. Two sides.</h2>
+    <p class="body" style="margin:1rem auto 2rem;max-width:600px;">Every placement requires two people: someone willing to give, and someone ready to receive. Here is what both journeys look like  -  and how they connect.</p>
+    <div class="tab-switcher">
+      <button class="tab active" id="tab-donor" onclick="switchTab('donor')">Donating a Vehicle</button>
+      <button class="tab" id="tab-recipient" onclick="switchTab('recipient')">Need a Car or Repair?</button>
+    </div>
+  </div>
+</section>
+
+<div id="panel-donor">
+<section class="section bg-off">
+  <div class="container">
+    <p class="label-tag">Donor Journey</p>
+    <h2 class="h2">What happens when you donate a vehicle.</h2>
+    <div class="journey">
+      <div class="journey-step"><div class="j-num">01</div><div><h4 class="j-title">Contact us to arrange a drop-off</h4><p class="j-desc">Email info@effectivecare.ca to set up a time at our partner shop. Bring your vehicle registration (in your name), a valid BC photo ID, and the keys. We handle the ICBC ownership transfer on site.</p><div class="j-suboptions"><div class="j-subopt"><span class="j-subopt-icon">&#10003;</span><div><strong>Lien check</strong><br>Before your vehicle is accepted, we verify that it has no outstanding financial lien. If a lien exists, it must be fully resolved before the donation can proceed.</div></div><div class="j-subopt"><span class="j-subopt-icon">&#10003;</span><div><strong>Tow truck pickup (where available)</strong><br>If your vehicle cannot be driven or you are unable to bring it in yourself, Effective Care can dispatch a tow truck to pick it up from your location. Contact us to discuss availability and any conditions that apply.</div></div></div></div></div>
+      <div class="journey-step"><div class="j-num">02</div><div><h4 class="j-title">We inspect and assess your vehicle</h4><p class="j-desc">Our partner shop performs a full mechanical inspection. If the vehicle can be certified as road-safe, we proceed to repairs. If it cannot, it is sold for parts  -  and the proceeds fund repairs for other vehicles in the pipeline. You receive a tax receipt either way.</p></div></div>
+      <div class="journey-step"><div class="j-num">03</div><div><h4 class="j-title">You receive your CRA tax receipt</h4><p class="j-desc">We issue an official donation tax receipt reflecting the fair market value of your vehicle. Effective Care Society is a CRA-registered charity.</p></div></div>
+      <div class="journey-step"><div class="j-num">04</div><div><h4 class="j-title">Your vehicle is matched to a family</h4><p class="j-desc">Once certified, your vehicle is matched to the applicant with the most demonstrated need. You are notified when your car finds a home. Drop-off to placement typically takes two to four weeks.</p></div></div>
+      <div class="journey-step"><div class="j-num">05</div><div><h4 class="j-title">Your "See Your Car" dashboard activates</h4><p class="j-desc">Within 30 days of placement, we activate a private dashboard just for you. With the family's consent, you receive anonymized updates  -  trips taken, jobs obtained, milestones reached, and messages of gratitude. No names or addresses are ever shared.</p></div></div>
+    </div>
+    <div class="cta-row"><a href="donate.html" class="btn-primary">Donate a Vehicle</a><a href="faq.html" class="btn-secondary">Donor FAQ</a></div>
+  </div>
+</section>
+</div>
+
+<div id="panel-recipient">
+<section class="section">
+  <div class="container">
+    <p class="label-tag">Getting Help</p>
+    <h2 class="h2">We help in two ways &mdash; a car, or a repair.</h2>
+    <p class="body" style="max-width:660px;margin-bottom:2.5rem;">Whether you need a vehicle from scratch or just need yours fixed, the process starts the same way: a short application through our portal.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:3rem;" class="help-two-col">
+      <div style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:1.5rem;">
+        <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);margin-bottom:0.6rem;">Need a vehicle</div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;line-height:1.3;">You don&rsquo;t have a car.</h3>
+        <p style="font-size:0.9rem;color:var(--muted);line-height:1.6;margin-bottom:0;">We match you with a donated, certified vehicle &mdash; at no cost to you. You keep the car. No rental, no return, no strings.</p>
+      </div>
+      <div style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:1.5rem;">
+        <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);margin-bottom:0.6rem;">Need a repair</div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;line-height:1.3;">You have a car. It just doesn&rsquo;t run.</h3>
+        <p style="font-size:0.9rem;color:var(--muted);line-height:1.6;margin-bottom:0;">We fix it for free. Labour is on us. You may pay for parts at cost. Bring it in; leave with it running.</p>
+      </div>
+    </div>
+
+    <p class="label-tag" style="margin-bottom:1rem;">The journey</p>
+    <div class="journey">
+      <div class="journey-step"><div class="j-num">01</div><div><h4 class="j-title">Check if you qualify</h4><p class="j-desc">You must hold a valid BC driver&rsquo;s licence and have a BC address. We look at household income, number of dependents, and how much you rely on a vehicle day-to-day &mdash; for work, medical appointments, or caring for family. We don&rsquo;t consider immigration status, credit score, or past legal history.</p></div></div>
+      <div class="journey-step"><div class="j-num">02</div><div><h4 class="j-title">Apply through the portal</h4><p class="j-desc">Create an account and choose the type of help you need: a vehicle, or a repair. The application takes about 10 minutes and is completely confidential. You can save and return to it at any time.</p></div></div>
+      <div class="journey-step"><div class="j-num">03</div><div><h4 class="j-title">We review your application</h4><p class="j-desc">Applications are reviewed based on need and, for repairs, shop capacity. We&rsquo;ll contact you through your portal as soon as we have a decision. If we&rsquo;re full, you go on a waitlist and are notified when space opens.</p></div></div>
+      <div class="journey-step"><div class="j-num">04</div><div><h4 class="j-title">We arrange everything at the shop</h4><p class="j-desc">If you&rsquo;re receiving a vehicle, we match you with one and arrange handover at Effective Autobody &mdash; ICBC paperwork included, no cost. If you need a repair, drop off your car; our mechanics assess and fix it, with labour at no charge and parts at cost only.</p></div></div>
+      <div class="journey-step"><div class="j-num">05</div><div><h4 class="j-title">You leave with a working car</h4><p class="j-desc">That&rsquo;s the whole point. After that, the car is yours to maintain &mdash; insurance, fuel, and registration are your responsibility, the same as any car owner.</p></div></div>
+    </div>
+    <div class="cta-row"><a href="portal.html" class="btn-primary">Apply in the Portal</a><a href="faq.html" class="btn-secondary">FAQ</a></div>
+  </div>
+</section>
+</div>
+
+
+<section class="section bg-dark">
+  <div class="container narrow text-center">
+    <p class="label-tag light">See Your Car</p>
+    <h2 class="h2 light">What makes us different.</h2>
+    <p class="body light" style="margin:1rem auto 0;max-width:600px;">Every other vehicle donation program ends at drop-off. With the family's opt-in consent, donors receive anonymized updates after placement  -  trips taken, jobs obtained, milestones reached. No names. No addresses. Just the knowledge that your car is still keeping someone moving.</p>
+  </div>
+</section>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('panel-donor').style.display = 'none';
+  document.getElementById('panel-recipient').style.display = 'none';
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-' + tab).style.display = 'block';
+}
+</script>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand-col">
+      <div class="footer-logo">Effective Care</div>
+      <p class="footer-tagline">Keep It Moving.</p>
+      <a href="tel:7782685996" class="footer-email" style="display:block;margin-bottom:0.25rem;">778 268 5996</a><a href="mailto:info@effectivecare.ca" class="footer-email">info@effectivecare.ca</a>
+    </div>
+    <div>
+      <div class="footer-col-title">Organization</div>
+      <ul class="footer-links">
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="how-it-works.html">How It Works</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Take Action</div>
+      <ul class="footer-links">
+        <li><a href="donate.html">Donate a Vehicle</a></li>
+        <li><a href="portal.html">Apply for a Car</a></li>
+        <li><a href="sponsors.html">Become a Sponsor</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Use</a></li>
+        <li><a href="cra.html">CRA Charity Info</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Effective Care Society &nbsp;&middot;&nbsp; CRA Registered Charity &nbsp;&middot;&nbsp; British Columbia, Canada</span>
+  </div>
+</footer>
+<script src="main.js"></script>
+</body></html>

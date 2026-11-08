@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Vehicles in need of repair — donated cars that need mechanic help before they can reach a family. See how you can volunteer your skills."/>
+<title>Cars Needing Work | Effective Care</title>
+<link rel="icon" type="image/png" href="favicon.png"/>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* ── CARS PAGE EXTRAS ── */
+.cars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+@media (max-width: 900px) { .cars-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) { .cars-grid { grid-template-columns: 1fr; } }
+
+.car-card {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.car-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+}
+.car-card-img {
+  width: 100%; height: 190px; object-fit: cover; background: #f1f5f9;
+  display: flex; align-items: center; justify-content: center;
+}
+.car-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.car-card-img-placeholder {
+  width: 100%; height: 190px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; color: #94a3b8;
+}
+.car-card-body { padding: 1.125rem 1.25rem 1.375rem; }
+.car-card-year { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 0.25rem; }
+.car-card-name { font-size: 1.1rem; font-weight: 800; color: #0b1f3a; letter-spacing: -0.01em; margin-bottom: 0.6rem; }
+.car-card-needs { font-size: 0.845rem; color: #475569; line-height: 1.5; margin-bottom: 0.875rem; }
+.car-card-footer { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.car-tag {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.22rem 0.65rem; border-radius: 20px;
+  background: #fef9c3; color: #854d0e; border: 1px solid #fde68a;
+}
+.car-tag.needs-help { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.car-mileage { font-size: 0.78rem; color: #94a3b8; margin-left: auto; }
+
+/* ── DETAIL MODAL ── */
+#carModal {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(11,31,58,0.55); align-items: center; justify-content: center;
+  padding: 1rem;
+}
+#carModal.active { display: flex; }
+.car-modal-box {
+  background: #fff; border-radius: 14px; max-width: 600px; width: 100%;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+  animation: modalIn 0.22s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.car-modal-img { width: 100%; height: 240px; object-fit: cover; border-radius: 14px 14px 0 0; }
+.car-modal-img-placeholder {
+  width: 100%; height: 240px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: 14px 14px 0 0; display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; color: #94a3b8;
+}
+.car-modal-body { padding: 1.75rem 2rem 2rem; }
+.car-modal-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 0.25rem; }
+.car-modal-title { font-size: 1.6rem; font-weight: 800; color: #0b1f3a; letter-spacing: -0.02em; margin-bottom: 1.25rem; }
+.car-modal-section { margin-bottom: 1.25rem; }
+.car-modal-section-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 0.5rem; }
+.car-modal-section p { font-size: 0.9rem; color: #475569; line-height: 1.6; }
+.car-modal-meta { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.car-modal-meta-item { }
+.car-modal-meta-item .meta-val { font-size: 1.1rem; font-weight: 700; color: #0b1f3a; }
+.car-modal-meta-item .meta-lbl { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.07em; }
+.car-modal-cta {
+  display: block; width: 100%; padding: 0.875rem;
+  background: #0b1f3a; color: #fff; border: none; border-radius: 8px;
+  font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center;
+  text-decoration: none; transition: background 0.15s; margin-top: 1.5rem;
+  font-family: inherit;
+}
+.car-modal-cta:hover { background: #112240; }
+.car-modal-close {
+  position: sticky; top: 0; float: right; margin: -1.75rem -2rem 0 0;
+  background: rgba(0,0,0,0.45); color: #fff; border: none; border-radius: 0 14px 0 8px;
+  padding: 0.6rem 1rem; font-size: 0.9rem; cursor: pointer; font-weight: 700;
+  backdrop-filter: blur(4px); z-index: 10; font-family: inherit;
+}
+.car-modal-close:hover { background: rgba(0,0,0,0.7); }
+
+/* ── VOLUNTEER BANNER ── */
+.volunteer-banner {
+  background: linear-gradient(135deg, #0b1f3a 0%, #112240 100%);
+  border-radius: 14px; padding: 2.5rem 2.5rem; display: flex;
+  align-items: center; justify-content: space-between; gap: 2rem;
+  margin-top: 3.5rem; flex-wrap: wrap;
+}
+.volunteer-banner-text h3 { font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: -0.015em; margin-bottom: 0.5rem; }
+.volunteer-banner-text p { font-size: 0.9rem; color: rgba(255,255,255,0.7); max-width: 480px; line-height: 1.6; }
+.volunteer-banner a {
+  background: #fff; color: #0b1f3a; padding: 0.8rem 1.75rem; border-radius: 8px;
+  font-weight: 700; font-size: 0.9rem; text-decoration: none; white-space: nowrap;
+  transition: opacity 0.15s; flex-shrink: 0;
+}
+.volunteer-banner a:hover { opacity: 0.9; }
+
+/* ── LOADING / EMPTY ── */
+.cars-loading { text-align: center; padding: 4rem 1rem; color: #94a3b8; font-size: 0.9rem; }
+.cars-empty {
+  text-align: center; padding: 5rem 1rem; grid-column: 1/-1;
+}
+.cars-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.cars-empty-title { font-size: 1.2rem; font-weight: 700; color: #0b1f3a; margin-bottom: 0.5rem; }
+.cars-empty-body { font-size: 0.9rem; color: #64748b; max-width: 360px; margin: 0 auto; line-height: 1.6; }
+</style>
+<script defer data-domain="effectivecare.ca" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="index.html" class="nav-brand">
+    <img src="logo-white.png" alt="Effective Care"/>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="">Home</a>
+    <div class="nav-dropdown">
+      <a href="about.html" class="">About</a>
+      <div class="nav-drop-menu">
+        <a href="about.html">About Us</a>
+        <a href="for-donors.html">For Donors</a>
+        <a href="for-recipients.html">For Recipients</a>
+        <a href="who-we-serve.html">Who We Serve</a>
+      </div>
+    </div>
+    <a href="how-it-works.html" class="">How It Works</a>
+    <a href="cars.html" class="active">Cars Needing Work</a>
+    <a href="testimonials.html" class="">Testimonials</a>
+    <a href="faq.html" class="">FAQ</a>
+    <a href="contact.html" class="">Contact</a>
+    <a href="sponsors.html" class="">Sponsors</a>
+    <a href="portal.html" class="">Portal</a>
+    <a href="donate.html" class="nav-donate">Donate a Vehicle</a>
+  </div>
+  <div class="nav-right-mobile">
+    <a href="donate.html" class="nav-donate-mobile">Donate</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About Us</a>
+  <a href="for-donors.html">For Donors</a>
+  <a href="for-recipients.html">For Recipients</a>
+  <a href="who-we-serve.html">Who We Serve</a>
+  <a href="how-it-works.html">How It Works</a>
+  <a href="testimonials.html">Testimonials</a>
+  <a href="faq.html">FAQ</a>
+  <a href="contact.html">Contact</a>
+  <a href="sponsors.html">Sponsors</a>
+  <a href="portal.html">Portal</a>
+  <a href="donate.html" class="mobile-donate">Donate a Vehicle</a>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <img src="photo-shop.jpg" class="page-hero-img" style="object-position:center 55%" alt="Cars being repaired"/>
+  <div class="page-hero-overlay">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Home</a> &rsaquo; Cars Needing Work</div>
+      <h1 class="page-hero-title">Cars Needing Work</h1>
+      <p class="page-hero-sub">These donated vehicles need mechanical attention before they can reach a family. See if you can help.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<section class="section">
+  <div class="container">
+    <p class="label-tag">Help Get Them Moving</p>
+    <h2 class="h2">Vehicles awaiting repair.</h2>
+    <p class="body" style="max-width:640px;margin-top:0.75rem;color:#475569;">
+      Each car below has been donated to Effective Care but isn't road-ready yet. With your help — whether you're a licensed mechanic or just willing to get your hands dirty — we can get more vehicles placed with families faster.
+    </p>
+
+    <!-- CARS GRID -->
+    <div id="cars-grid" class="cars-grid">
+      <div class="cars-loading">Our first vehicles arrive this winter. <a href="donate.html" style="color:#2563eb;font-weight:600;">Donate a vehicle</a> or <a href="contact.html" style="color:#2563eb;font-weight:600;">get in touch</a> to help us get started.</div>
+    </div>
+
+    <!-- VOLUNTEER BANNER -->
+    <div class="volunteer-banner">
+      <div class="volunteer-banner-text">
+        <h3>Are you a mechanic?</h3>
+        <p>We're always looking for licensed mechanics and skilled volunteers to help us get cars ready. Sign in to your donor portal to register as a volunteer — or contact us directly.</p>
+      </div>
+      <a href="portal.html">Volunteer in the Portal →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section bg-dark">
+  <div class="container" style="max-width:860px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;">
+      <div>
+        <p class="label-tag light">Repair Assistance Program</p>
+        <h2 class="h2 light" style="margin-bottom:1rem;">Your car is broken and you can't afford to fix it.</h2>
+        <p class="body light">We hear this constantly. You own a vehicle — it's sitting in your driveway with a dead alternator or a broken timing belt — and without it you can't get to work.</p>
+        <p class="body light" style="margin-top:1rem;">Apply for our repair assistance program. Certified mechanics volunteer their labour, and we coordinate the repair through our partner shop, Effective Autobody.</p>
+        <a href="portal.html" class="btn-blue-outline" style="display:inline-block;margin-top:1.75rem;">Apply for Repair Help &rarr;</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:1.25rem 1.5rem;">
+          <div style="font-weight:700;color:#fff;font-size:0.9rem;margin-bottom:0.3rem;">Free labour</div>
+          <div style="font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6;">All mechanical work is done by certified professionals who volunteer their time.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:1.25rem 1.5rem;">
+          <div style="font-weight:700;color:#fff;font-size:0.9rem;margin-bottom:0.3rem;">Need-based priority</div>
+          <div style="font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6;">Families who rely on the vehicle for work or medical appointments are prioritized first.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:1.25rem 1.5rem;">
+          <div style="font-weight:700;color:#fff;font-size:0.9rem;margin-bottom:0.3rem;">BC residents only</div>
+          <div style="font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6;">Vehicle must be registered in your name in British Columbia.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section bg-off">
+  <div class="container" style="text-align:center;">
+    <p class="label-tag">Have a Vehicle You Don't Need?</p>
+    <h2 class="h2">Donate yours and keep it moving.</h2>
+    <p class="body" style="max-width:520px;margin:1rem auto 2rem;">"Keep It Moving." isn't just our tagline — it's what happens when a donated vehicle reaches the right family.</p>
+    <a href="donate.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.9rem 2rem;background:#0b1f3a;color:#fff;border-radius:8px;font-weight:700;font-size:0.95rem;text-decoration:none;">Donate a Vehicle →</a>
+  </div>
+</section>
+
+<!-- FOOTER placeholder (pulled from main style.css pattern) -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand-col">
+      <div class="footer-logo">Effective Care</div>
+      <p class="footer-tagline">Keep It Moving.</p>
+      <a href="tel:7782685996" class="footer-email" style="display:block;margin-bottom:0.25rem;">778 268 5996</a><a href="mailto:info@effectivecare.ca" class="footer-email">info@effectivecare.ca</a>
+    </div>
+    <div>
+      <div class="footer-col-title">Organization</div>
+      <ul class="footer-links">
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="how-it-works.html">How It Works</a></li>
+        <li><a href="sponsors.html">Sponsors</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Take Action</div>
+      <ul class="footer-links">
+        <li><a href="donate.html">Donate a Vehicle</a></li>
+        <li><a href="portal.html">Apply for a Car</a></li>
+        <li><a href="testimonials.html">Testimonials</a></li>
+        <li><a href="sponsors.html">Become a Sponsor</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Use</a></li>
+        <li><a href="cra.html">CRA Charity Info</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Effective Care Society &nbsp;&middot;&nbsp; CRA Registered Charity &nbsp;&middot;&nbsp; British Columbia, Canada</span>
+  </div>
+</footer>
+
+<!-- DETAIL MODAL -->
+<div id="carModal">
+  <div class="car-modal-box" id="carModalBox">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.46.2/dist/umd/supabase.js"></script>
+<script>
+var SUPABASE_URL = 'https://jzyfiagualwvmznnnvoy.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_RO133yoq9HSXyx1igzsRVQ_ot4ahVAs';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+var _cars = [];
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function loadCars() {
+  var grid = document.getElementById('cars-grid');
+  try {
+    var { data, error } = await sb.from('cars_needing_work').select('*').eq('status','approved').order('created_at', { ascending: false });
+    if (error) throw error;
+    _cars = data || [];
+  } catch(e) {
+    _cars = [];
+    console.error(e);
+  }
+
+  if (!_cars.length) {
+    grid.innerHTML = '<div class="cars-empty">' +
+      '<div class="cars-empty-icon"></div>' +
+      '<div class="cars-empty-title">No cars listed right now</div>' +
+      '<div class="cars-empty-body">We update this list as vehicles are donated and assessed. Check back soon, or sign in to volunteer your mechanical skills.</div>' +
+      '</div>';
+    return;
+  }
+
+  grid.innerHTML = _cars.map(function(c, i) {
+    var imgHtml = c.image_url
+      ? '<div class="car-card-img"><img src="' + esc(c.image_url) + '" alt="' + esc((c.year||'') + ' ' + (c.make||'') + ' ' + (c.model||'')) + '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=car-card-img-placeholder></div>\';"/></div>'
+      : '<div class="car-card-img-placeholder"></div>';
+
+    var needs = c.needs_description || c.needs || 'Needs mechanical assessment';
+    var needsPreview = needs.length > 90 ? needs.slice(0,87) + '…' : needs;
+    var mileage = c.mileage ? c.mileage.toLocaleString('en-CA') + ' km' : '';
+
+    return '<div class="car-card" onclick="openCar(' + i + ')">' +
+      imgHtml +
+      '<div class="car-card-body">' +
+        '<div class="car-card-year">' + esc(String(c.year||'')) + '</div>' +
+        '<div class="car-card-name">' + esc((c.make||'') + ' ' + (c.model||'')) + '</div>' +
+        '<div class="car-card-needs">' + esc(needsPreview) + '</div>' +
+        '<div class="car-card-footer">' +
+          '<span class="car-tag needs-help">Needs Work</span>' +
+          (mileage ? '<span class="car-mileage">' + esc(mileage) + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openCar(i) {
+  var c = _cars[i];
+  if (!c) return;
+
+  var imgHtml = c.image_url
+    ? '<img class="car-modal-img" src="' + esc(c.image_url) + '" alt="' + esc((c.year||'') + ' ' + (c.make||'') + ' ' + (c.model||'')) + '" onerror="this.outerHTML=\'<div class=car-modal-img-placeholder></div>\'"/>'
+    : '<div class="car-modal-img-placeholder"></div>';
+
+  var needs = c.needs_description || c.needs || 'Needs mechanical assessment.';
+  var mileage = c.mileage ? c.mileage.toLocaleString('en-CA') + ' km' : '—';
+
+  document.getElementById('carModalBox').innerHTML =
+    '<button class="car-modal-close" onclick="closeCar()"> Close</button>' +
+    imgHtml +
+    '<div class="car-modal-body">' +
+      '<div class="car-modal-label">' + esc(String(c.year||'')) + ' · Needs Repair</div>' +
+      '<div class="car-modal-title">' + esc((c.make||'') + ' ' + (c.model||'')) + '</div>' +
+      '<div class="car-modal-meta">' +
+        (c.year ? '<div class="car-modal-meta-item"><div class="meta-val">' + esc(String(c.year)) + '</div><div class="meta-lbl">Year</div></div>' : '') +
+        (c.mileage ? '<div class="car-modal-meta-item"><div class="meta-val">' + mileage + '</div><div class="meta-lbl">Mileage</div></div>' : '') +
+      '</div>' +
+      '<div class="car-modal-section">' +
+        '<div class="car-modal-section-title">What needs fixing</div>' +
+        '<p>' + esc(needs) + '</p>' +
+      '</div>' +
+      '<div class="car-modal-section">' +
+        '<div class="car-modal-section-title">About this vehicle</div>' +
+        '<p>This car was generously donated to Effective Care and is awaiting mechanical repair before it can be placed with a family in need. Your skills could help get it on the road.</p>' +
+      '</div>' +
+      '<a href="portal.html" class="car-modal-cta">Volunteer to Help →</a>' +
+    '</div>';
+
+  document.getElementById('carModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCar() {
+  document.getElementById('carModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('carModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCar();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCar();
+});
+
+// Mobile nav
+var hamburger = document.getElementById('hamburgerBtn');
+var mobileMenu = document.getElementById('mobileMenu');
+if (hamburger && mobileMenu) {
+  hamburger.addEventListener('click', function() {
+    mobileMenu.classList.toggle('open');
+  });
+}
+
+loadCars();
+</script>
+</body>
+</html>
