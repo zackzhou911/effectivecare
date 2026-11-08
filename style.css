@@ -740,22 +740,23 @@ nav {
 .sponsor-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.07); }
 .sponsor-logo-wrap {
   width: 220px;
-  aspect-ratio: 16 / 5;
+  height: 68px;
   border: 1px solid var(--border);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 24px;
+  padding: 10px 20px;
   flex-shrink: 0;
   background: var(--off);
   overflow: hidden;
 }
 .sponsor-logo-img {
   display: block;
-  width: 100%;
-  height: auto;
+  max-width: 100%;
   max-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
 }
 .sponsor-info {}
@@ -870,7 +871,7 @@ footer { background: var(--navy); }
   .impact-stat:nth-child(4) { border-right: none; border-top: 1px solid rgba(255,255,255,0.07); }
   .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
   .sponsor-card { flex-direction: column; }
-  .sponsor-logo-wrap { width: 100%; aspect-ratio: 16 / 5; }
+  .sponsor-logo-wrap { width: 100%; height: 60px; }
   .donation-stats { grid-template-columns: 1fr; }
   .other-give-grid { grid-template-columns: 1fr; }
   .leader-card { align-items: center; }
