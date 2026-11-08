@@ -751,12 +751,12 @@ nav {
   background: var(--off);
   overflow: hidden;
 }
-.sponsor-logo-wrap img {
+.sponsor-logo-img {
+  display: block;
   width: 100%;
   height: auto;
   max-height: 100%;
   object-fit: contain;
-  display: block;
 }
 .sponsor-info {}
 .sponsor-type { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--blue); margin-bottom: 0.4rem; }

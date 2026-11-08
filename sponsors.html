@@ -154,7 +154,7 @@
           tagsHtml = '<div class="sponsor-tags">' + tagArr.map(function(t){ return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>';
         }
         var logoHtml = s.logo_url
-          ? '<img src="' + esc(s.logo_url) + '" alt="' + esc(s.name) + '" style="max-width:100%;max-height:120px;object-fit:contain;"/>'
+          ? '<img src="' + esc(s.logo_url) + '" alt="' + esc(s.name) + '" class="sponsor-logo-img"/>'
           : '<span style="font-size:1.4rem;font-weight:800;color:#222;letter-spacing:-0.02em;">' + esc(s.name) + '</span>';
         var style = i > 0 ? ' style="margin-top:2rem;"' : '';
         return '<div class="sponsor-card"' + style + '>' +
