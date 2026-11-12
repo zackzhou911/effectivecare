@@ -576,7 +576,7 @@ table.dtbl tr:hover td { background: #f8fafc; }
             <div class="form-field" style="margin-bottom:0;">
               <label>Profile Photo (optional — PNG or JPG)</label>
               <div id="tm-img-wrap" style="border:1.5px dashed var(--border);border-radius:6px;padding:1rem;text-align:center;cursor:pointer;background:var(--off);position:relative;" onclick="document.getElementById('tm-img-file').click()">
-                <input type="file" id="tm-img-file" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="openCropEditor('tm-img-file','circle','tm','tm-img-preview','tm-img-label')"/>
+                <input type="file" id="tm-img-file" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="useFileDirectly('tm-img-file','tm','tm-img-preview','tm-img-label')"/>
                 <img id="tm-img-preview" src="" style="display:none;max-height:80px;max-width:100%;border-radius:50%;margin-bottom:0.5rem;object-fit:cover;width:80px;height:80px;"/>
                 <div id="tm-img-label" style="font-size:0.82rem;color:var(--muted);">Click to upload photo</div>
               </div>
@@ -1835,20 +1835,55 @@ function _showCropModal(dataUrl, shape, slot, previewId, labelId, fileName) {
 // previewImg is kept as no-op shim (old onchange refs replaced below)
 function previewImg() {}
 
-// useFileDirectly — for sponsor logos: skip the crop modal,
-// store the raw file as the blob and show it in the preview.
+// useFileDirectly — skip crop/zoom; just store the raw file (or rasterized PNG for SVG).
+// SVG files with embedded data-URI images are converted to PNG via canvas so they display
+// correctly as <img> tags on the public site.
 function useFileDirectly(inputId, slot, previewId, labelId) {
   var input = document.getElementById(inputId);
   if (!input || !input.files || !input.files[0]) return;
   var file = input.files[0];
-  _cropBlobs[slot] = file;
-  var prev = document.getElementById(previewId);
-  if (prev) {
-    prev.src = URL.createObjectURL(file);
-    prev.style.display = 'block';
+
+  var isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+
+  function storeBlob(blob, displaySrc) {
+    _cropBlobs[slot] = blob;
+    var prev = document.getElementById(previewId);
+    if (prev) { prev.src = displaySrc; prev.style.display = 'block'; }
+    var lbl = document.getElementById(labelId);
+    if (lbl) lbl.textContent = file.name + (isSvg ? ' (converted to PNG)' : '');
   }
-  var lbl = document.getElementById(labelId);
-  if (lbl) lbl.textContent = file.name;
+
+  if (isSvg) {
+    // Read SVG text, embed as data URI in an <img>, render to canvas, export as PNG
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var svgText = e.target.result;
+      var b64Svg = btoa(unescape(encodeURIComponent(svgText)));
+      var dataUri = 'data:image/svg+xml;base64,' + b64Svg;
+      var img = new Image();
+      img.onload = function() {
+        var w = img.naturalWidth || img.width || 340;
+        var h = img.naturalHeight || img.height || 61;
+        var canvas = document.createElement('canvas');
+        canvas.width = w * 2; canvas.height = h * 2; // 2x for quality
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w * 2, h * 2);
+        canvas.toBlob(function(blob) {
+          storeBlob(blob, URL.createObjectURL(blob));
+        }, 'image/png');
+      };
+      img.onerror = function() {
+        // Canvas can't render it (e.g. cross-origin content in SVG) — fall back to raw file
+        storeBlob(file, URL.createObjectURL(file));
+        var lbl = document.getElementById(labelId);
+        if (lbl) lbl.textContent = file.name;
+      };
+      img.src = dataUri;
+    };
+    reader.readAsText(file);
+  } else {
+    storeBlob(file, URL.createObjectURL(file));
+  }
 }
 
 async function uploadContentImageBlob(blob, folder, name) {
@@ -1945,7 +1980,7 @@ function editTeamMember(id) {
       '<div>' + currentPhotoHtml + '<div style="font-size:0.72rem;color:var(--muted);">Current</div></div>' +
       '<div class="form-field" style="margin-bottom:0;"><label style="font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:0.3rem;">Replace Photo (optional)</label>' +
         '<div id="etm-img-wrap" style="border:1.5px dashed var(--border);border-radius:6px;padding:0.75rem;text-align:center;cursor:pointer;background:var(--off);" onclick="document.getElementById(\'etm-img-file\').click()">' +
-          '<input type="file" id="etm-img-file" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="openCropEditor(\'etm-img-file\',\'circle\',\'etm\',\'etm-img-preview\',\'etm-img-label\')"/>' +
+          '<input type="file" id="etm-img-file" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="useFileDirectly(\'etm-img-file\',\'etm\',\'etm-img-preview\',\'etm-img-label\')"/>' +
           '<img id="etm-img-preview" src="" style="display:none;max-height:60px;max-width:100%;border-radius:50%;margin-bottom:0.3rem;object-fit:cover;width:60px;height:60px;"/>' +
           '<div id="etm-img-label" style="font-size:0.78rem;color:var(--muted);">Click to upload new photo</div>' +
         '</div>' +
