@@ -744,7 +744,7 @@ nav {
   flex-shrink: 0;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: var(--navy);
+  background: var(--off);
   padding: 10px 16px;
   display: flex;
   align-items: center;
