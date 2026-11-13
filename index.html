@@ -55,9 +55,12 @@
 </div>
 <style>
 /* Hero A3: centered text in the upper half, large stats below */
-.hero .hero-content{text-align:center;margin:0 auto;justify-content:flex-start;padding-top:3.5rem;padding-bottom:1.5rem;}
-.hero .hero-sub{margin-left:auto;margin-right:auto;}
-.hero .hero-actions{justify-content:center;}
+.hero .hero-content{text-align:center;margin:0 auto;justify-content:flex-start;padding-top:4.25rem;padding-bottom:1.5rem;}
+.hero .hero-eyebrow{margin-bottom:2.1rem;}
+.hero .hero-headline{margin-bottom:2.1rem;}
+.hero .hero-sub{margin-left:auto;margin-right:auto;margin-bottom:2.9rem;line-height:1.9;max-width:600px;}
+.hero .hero-actions{justify-content:center;gap:1.1rem;}
+@media (max-width:600px){.hero .hero-content{padding-top:2.75rem;}.hero .hero-eyebrow,.hero .hero-headline{margin-bottom:1.5rem;}.hero .hero-sub{margin-bottom:2rem;}}
 .hero-stats{position:relative;z-index:2;margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:1000px;width:100%;margin-left:auto;margin-right:auto;padding:3rem 2rem 3.25rem;box-sizing:border-box;text-align:center;}
 .hero-stats::before{content:"";grid-column:1/-1;height:1px;width:120px;margin:0 auto 2.25rem;background:rgba(255,255,255,0.4);}
 .hero-stat-n{font-family:Georgia,serif;font-size:clamp(3.25rem,7.5vw,6rem);font-weight:800;color:#fff;line-height:1;letter-spacing:-0.02em;text-shadow:0 2px 12px rgba(0,0,0,0.45);}
