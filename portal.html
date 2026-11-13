@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Portal | Effective Care</title>
+<meta name="description" content="Sign in or create an account to donate a vehicle, apply for transportation assistance, or track your Effective Care Society application."/>
 <link rel="icon" type="image/png" href="favicon.png"/>
 <link rel="stylesheet" href="style.css"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.46.2/dist/umd/supabase.js"></script>
@@ -227,10 +228,10 @@ body.ec-darkmode input, body.ec-darkmode textarea, body.ec-darkmode select { bac
 <div class="auth-wrap" id="authWrap" style="position:fixed;top:64px;left:0;right:0;bottom:0;display:flex;align-items:stretch;overflow:hidden;z-index:10;">
   <!-- Left image panel -->
   <div class="auth-img-panel" style="flex:1;display:none;position:relative;overflow:hidden;" id="authImgPanel">
-    <img src="photo-commute.jpg" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center;"/>
+    <img src="photo-commute.jpg" alt="Commuter driving on a British Columbia road at sunrise" style="width:100%;height:100%;object-fit:cover;object-position:center;"/>
     <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,22,40,0.72) 0%,rgba(13,43,85,0.45) 100%);"></div>
     <div style="position:absolute;bottom:3rem;left:3rem;right:3rem;color:#fff;">
-      <div style="font-family:Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1.25;margin-bottom:0.75rem;letter-spacing:-0.02em;">Moving BC families forward.</div>
+      <div style="font-family:Georgia,serif;font-size:1.75rem;font-weight:700;line-height:1.25;margin-bottom:0.75rem;letter-spacing:-0.02em;">Moving Metro Vancouver families forward.</div>
       <div style="font-size:0.875rem;color:rgba(255,255,255,0.72);line-height:1.7;">Donate your vehicle or apply for one — every journey starts here.</div>
     </div>
   </div>
@@ -496,6 +497,7 @@ function enterPortal() {
 
   if (currentRole === 'donor') buildDonor();
   else buildRecipient();
+  if (currentRole !== 'donor' && location.hash === '#repair') { setTimeout(function(){ showView('r-repair'); }, 0); }
 }
 
 function showView(id) {
@@ -620,7 +622,7 @@ function buildDonor() {
     <!-- CASH DONATION FORM -->
     <div class="view" id="view-d-cash">
       <div class="view-title">Make a Donation</div>
-      <div class="view-sub">Every dollar funds vehicle inspection, repair, and placement for families in need. A CRA tax receipt is issued for all donations.</div>
+      <div class="view-sub">Every dollar funds vehicle inspection, repair, and placement for families in need. Once our CRA registration is confirmed, we will issue official donation receipts for eligible gifts.</div>
       <div class="card">
         <div id="cash-msg" class="form-msg"></div>
         <div class="pf-row">
@@ -645,7 +647,7 @@ function buildDonor() {
           </select>
         </div>
         <div style="background:var(--off);border:1px solid var(--border);border-radius:5px;padding:1rem 1.25rem;margin-bottom:1rem;">
-          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.3rem;">Tax receipt — who should it be issued to?</div>
+          <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.3rem;">Donation receipt (issued once CRA registration is confirmed) — who should it be issued to?</div>
         </div>
         <div class="pf-row">
           <div class="pf-field"><label>Full name</label><input type="text" id="cd-name" placeholder="Jane Smith"/></div>
@@ -976,7 +978,7 @@ async function submitCashDonation() {
   var notes     = document.getElementById('cd-notes').value.trim();
 
   if (!amount || !method || !name) {
-    showFormMsg('cash-msg', 'Please fill in amount, payment method, and name for the tax receipt.', 'err'); return;
+    showFormMsg('cash-msg', 'Please fill in amount, payment method, and name for the donation receipt.', 'err'); return;
   }
 
   var btn = document.getElementById('cash-btn');

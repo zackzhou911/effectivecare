@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content="Effective Care connects donated vehicles with BC families who need reliable transportation most."/>
+<meta name="description" content="Effective Care connects donated vehicles with Metro Vancouver families who need reliable transportation most."/>
 <title>Sponsors | Effective Care</title>
 <link rel="icon" type="image/png" href="favicon.png"/>
 <link rel="stylesheet" href="style.css"/>
@@ -76,8 +76,8 @@
     <div class="partnership-grid">
       <div class="partnership-item"><h4 class="partnership-title">Repair Partner</h4><p class="partnership-body">Mechanic shops and collision centres that provide inspection, repair, or certification services. Pro bono or at-cost arrangements welcome.</p></div>
       <div class="partnership-item"><h4 class="partnership-title">Parts Partner</h4><p class="partnership-body">Auto parts suppliers or salvage yards that donate components toward repairing vehicles in our pipeline.</p></div>
-      <div class="partnership-item"><h4 class="partnership-title">Fleet Partner</h4><p class="partnership-body">Companies upgrading their fleet can donate retired vehicles. We handle inspection, certification, and placement  -  and issue a CRA tax receipt.</p></div>
-      <div class="partnership-item"><h4 class="partnership-title">Financial Sponsor</h4><p class="partnership-body">Monetary contributions that fund repair costs and placement expenses. The average cost to place one vehicle is approximately $840 CAD.</p></div>
+      <div class="partnership-item"><h4 class="partnership-title">Fleet Partner</h4><p class="partnership-body">Companies upgrading their fleet can donate retired vehicles. We handle inspection, certification, and placement. Once our CRA registration is confirmed, we will issue official donation receipts for eligible gifts.</p></div>
+      <div class="partnership-item"><h4 class="partnership-title">Financial Sponsor</h4><p class="partnership-body">Monetary contributions that fund repair costs and placement expenses.</p></div>
       <div class="partnership-item"><h4 class="partnership-title">Community Partner</h4><p class="partnership-body">Non-profits, social services, and employers that refer qualifying families or help identify donor vehicles in the community.</p></div>
       <div class="partnership-item partnership-item-dark"><h4 class="partnership-title" style="color:#fff;">Want to sponsor?</h4><p class="partnership-body" style="color:rgba(255,255,255,0.65);">We welcome shops, businesses, and individuals who want to support the community. Reach out and we will find a way to work together.</p><a href="contact.html" class="link-arrow light" style="margin-top:1rem;display:inline-block;">Get in touch &rarr;</a></div>
     </div>
@@ -109,7 +109,9 @@
       <div class="footer-col-title">Take Action</div>
       <ul class="footer-links">
         <li><a href="donate.html">Donate a Vehicle</a></li>
-        <li><a href="portal.html">Apply for a Car</a></li>
+        <li><a href="portal.html">Apply for a Vehicle</a></li>
+        <li><a href="portal.html#repair">Apply for Repair Help</a></li>
+        <li><a href="testimonials.html">Testimonials</a></li>
         <li><a href="sponsors.html">Become a Sponsor</a></li>
       </ul>
     </div>
@@ -123,7 +125,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <span>&copy; 2026 Effective Care Society &nbsp;&middot;&nbsp; CRA Registered Charity &nbsp;&middot;&nbsp; British Columbia, Canada</span>
+    <span>&copy; 2026 Effective Care Society &nbsp;&middot;&nbsp; Charity Registration Pending &nbsp;&middot;&nbsp; British Columbia, Canada</span>
   </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.46.2/dist/umd/supabase.js"></script>
@@ -173,6 +175,10 @@
     }
   }
   loadSponsors();
+  setTimeout(function(){
+    var l = document.getElementById('sponsors-list');
+    if (l && /Loading sponsors/.test(l.textContent)) l.innerHTML = '<div style="color:#94a3b8;font-size:0.9rem;padding:1rem 0;">Sponsors will appear here shortly.</div>';
+  }, 8000);
 })();
 </script>
 <script src="main.js"></script></body></html>
