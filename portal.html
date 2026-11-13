@@ -178,10 +178,12 @@ body.ec-darkmode input, body.ec-darkmode textarea, body.ec-darkmode select { bac
   #authWrap > div:last-child { flex: 1; width:100%; padding: 1.5rem 1rem; }
   .auth-card { box-shadow: none !important; max-width:100% !important; padding:1.25rem 1rem !important; }
 }
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 </style>
 <script defer data-domain="effectivecare.ca" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
+<h1 class="sr-only">Effective Care Portal</h1>
 <nav id="mainNav">
   <a href="index.html" class="nav-brand">
     <img src="logo-white.png" alt="Effective Care"/>
@@ -252,11 +254,11 @@ body.ec-darkmode input, body.ec-darkmode textarea, body.ec-darkmode select { bac
     <div id="pane-in">
       <div class="f-field">
         <label>Email</label>
-        <input type="email" id="si-email" placeholder="you@example.com" autocomplete="email"/>
+        <input type="email" id="si-email" required placeholder="you@example.com" autocomplete="email"/>
       </div>
       <div class="f-field">
         <label>Password</label>
-        <input type="password" id="si-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()"/>
+        <input type="password" id="si-pass" required placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()"/>
       </div>
       <button class="auth-submit" id="si-btn" onclick="signIn()">Sign In</button>
       <div class="auth-toggle"><a onclick="showForgotPassword()">Forgot password?</a> &nbsp;·&nbsp; No account? <a onclick="switchTab('up')">Create one</a></div>
@@ -270,11 +272,11 @@ body.ec-darkmode input, body.ec-darkmode textarea, body.ec-darkmode select { bac
       </div>
       <div class="f-field">
         <label>Email</label>
-        <input type="email" id="su-email" placeholder="you@example.com" autocomplete="email"/>
+        <input type="email" id="su-email" required placeholder="you@example.com" autocomplete="email"/>
       </div>
       <div class="f-field">
         <label>Password</label>
-        <input type="password" id="su-pass" placeholder="At least 8 characters" autocomplete="new-password"/>
+        <input type="password" id="su-pass" required placeholder="At least 8 characters" autocomplete="new-password"/>
       </div>
       <div class="f-field">
         <label>I am registering as a</label>
@@ -622,7 +624,7 @@ function buildDonor() {
     <!-- CASH DONATION FORM -->
     <div class="view" id="view-d-cash">
       <div class="view-title">Make a Donation</div>
-      <div class="view-sub">Every dollar funds vehicle inspection, repair, and placement for families in need. Once our CRA registration is confirmed, we will issue official donation receipts for eligible gifts.</div>
+      <div class="view-sub">Every dollar funds vehicle inspection, repair, and placement for families in need. Effective Care Society is not yet a registered charity and cannot issue official donation receipts. If our CRA registration is approved, receipts may be available for eligible gifts made after that date.</div>
       <div class="card">
         <div id="cash-msg" class="form-msg"></div>
         <div class="pf-row">
@@ -1221,7 +1223,7 @@ function buildRecipient() {
     </div>
 
     <!-- CAR REPAIR APPLICATION -->
-    <div class="view" id="view-r-repair">
+    <div class="view" id="view-r-repair" data-anchor="repair">
       <div class="view-title">Car Repair Application</div>
       <div class="view-sub">If you own a vehicle that needs repairs but cannot afford them, you may qualify for discounted or free repair assistance through Effective Care.</div>
       <div class="card">
