@@ -53,6 +53,21 @@
   <a href="portal.html">Portal</a>
   <a href="donate.html" class="mobile-donate">Donate a Vehicle</a>
 </div>
+<style>
+/* Hero A3: centered text in the upper half, large stats below */
+.hero .hero-content{text-align:center;margin:0 auto;justify-content:flex-start;padding-top:3.5rem;padding-bottom:1.5rem;}
+.hero .hero-sub{margin-left:auto;margin-right:auto;}
+.hero .hero-actions{justify-content:center;}
+.hero-stats{position:relative;z-index:2;margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:1000px;width:100%;margin-left:auto;margin-right:auto;padding:3rem 2rem 3.25rem;box-sizing:border-box;text-align:center;}
+.hero-stats::before{content:"";grid-column:1/-1;height:1px;width:120px;margin:0 auto 2.25rem;background:rgba(255,255,255,0.4);}
+.hero-stat-n{font-family:Georgia,serif;font-size:clamp(3.25rem,7.5vw,6rem);font-weight:800;color:#fff;line-height:1;letter-spacing:-0.02em;text-shadow:0 2px 12px rgba(0,0,0,0.45);}
+.hero-stat-n::after{content:"";display:block;width:28px;height:3px;background:#ffc850;margin:0.8rem auto 0;border-radius:2px;}
+.hero-stat-l{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,0.65);margin-top:0.5rem;}
+@media (max-width:600px){
+  .hero-stats{grid-template-columns:repeat(2,1fr);row-gap:1.75rem;padding:2rem 1rem 2.5rem;}
+  .hero-stat-n{font-size:clamp(2.5rem,12vw,3.5rem);}
+}
+</style>
 <div class="hero">
   <img src="photo-hero.jpg" class="hero-img" alt="British Columbia highway"/>
   <div class="hero-overlay"></div>
@@ -67,24 +82,12 @@
     </div>
   </div>
 
-  <!-- STAT TILES — inside hero, flush at bottom over the photo -->
-  <div id="stats-section" style="display:flex;position:relative;z-index:2;border-top:1px solid rgba(255,255,255,0.15);background:rgba(10,22,40,0.45);backdrop-filter:blur(10px);">
-    <div style="flex:1;padding:1.1rem 0.75rem;text-align:center;border-right:1px solid rgba(255,255,255,0.1);">
-      <div id="stat-total-donations" style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Georgia,serif;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,0.5);">0</div>
-      <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Total Donations</div>
-    </div>
-    <div style="flex:1;padding:1.1rem 0.75rem;text-align:center;border-right:1px solid rgba(255,255,255,0.1);">
-      <div id="stat-matched-pairs" style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Georgia,serif;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,0.5);">0</div>
-      <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Matched Pairs</div>
-    </div>
-    <div style="flex:1;padding:1.1rem 0.75rem;text-align:center;border-right:1px solid rgba(255,255,255,0.1);">
-      <div id="stat-families-helped" style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Georgia,serif;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,0.5);">0</div>
-      <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Families Helped</div>
-    </div>
-    <div style="flex:1;padding:1.1rem 0.75rem;text-align:center;">
-      <div id="stat-cars-repaired" style="font-size:1.9rem;font-weight:800;color:#fff;font-family:Georgia,serif;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,0.5);">0</div>
-      <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);margin-top:0.35rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Cars Repaired</div>
-    </div>
+  <!-- STATS — centered in the lower half of the hero; hidden unless stats_visible = 1 -->
+  <div id="stats-section" class="hero-stats" style="display:none;">
+    <div><div id="stat-total-donations" class="hero-stat-n">0</div><div class="hero-stat-l">Total Donations</div></div>
+    <div><div id="stat-matched-pairs" class="hero-stat-n">0</div><div class="hero-stat-l">Matched Pairs</div></div>
+    <div><div id="stat-families-helped" class="hero-stat-n">0</div><div class="hero-stat-l">Families Helped</div></div>
+    <div><div id="stat-cars-repaired" class="hero-stat-n">0</div><div class="hero-stat-l">Cars Repaired</div></div>
   </div>
 </div>
 
@@ -331,7 +334,7 @@
       var visRow = overrides.stats_visible;
       var isVisible = visRow === 1 || visRow === '1' || visRow === true;
       var section = document.getElementById('stats-section');
-      if (section) section.style.display = isVisible ? 'flex' : 'none';
+      if (section) section.style.display = isVisible ? 'grid' : 'none';
 
       displayStats(stats);
     } catch(e) {
