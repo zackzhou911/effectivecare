@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content="Contact Effective Care Society in Metro Vancouver by phone or email to donate a vehicle, apply for help, or ask a question."/>
 <title>Contact | Effective Care</title>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Effective Care Society"/>
+<meta property="og:title" content="Contact | Effective Care"/>
+<meta property="og:description" content="Contact Effective Care Society in Metro Vancouver by phone or email to donate a vehicle, apply for help, or ask a question."/>
+<meta property="og:url" content="https://effectivecare.ca/contact.html"/>
+<meta property="og:image" content="https://effectivecare.ca/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://effectivecare.ca/og-image.png"/>
 <link rel="icon" type="image/png" href="favicon.png"/>
 <link rel="stylesheet" href="style.css"/>
 <script defer data-domain="effectivecare.ca" src="https://plausible.io/js/script.js"></script>
@@ -25,7 +35,7 @@
       </div>
     </div>
     <a href="how-it-works.html" class="">How It Works</a>
-    <a href="testimonials.html" class="">Testimonials</a>
+    <a href="repair.html" class="">Repair Help</a>
     <a href="faq.html" class="">FAQ</a>
     <a href="contact.html" class="active">Contact</a>
     <a href="sponsors.html" class="">Sponsors</a>
@@ -46,7 +56,7 @@
   <a href="for-recipients.html">For Recipients</a>
   <a href="who-we-serve.html">Who We Serve</a>
   <a href="how-it-works.html">How It Works</a>
-  <a href="testimonials.html">Testimonials</a>
+  <a href="repair.html">Repair Help</a>
   <a href="faq.html">FAQ</a>
   <a href="contact.html">Contact</a>
   <a href="sponsors.html">Sponsors</a>
@@ -70,8 +80,19 @@
     <div class="contact-details" style="margin-top:2rem;">
       <div class="contact-row"><div class="contact-label">Phone</div><a href="tel:7782685996" class="contact-val">778 268 5996</a></div>
       <div class="contact-row"><div class="contact-label">Email</div><a href="mailto:info@effectivecare.ca" class="contact-val">info@effectivecare.ca</a></div>
-      <div class="contact-row"><div class="contact-label">Location</div><div class="contact-val">Metro Vancouver, British Columbia</div></div>
+      <div class="contact-row"><div class="contact-label">Location</div><div class="contact-val">Richmond, BC &mdash; drop-off address provided when you book</div></div>
     </div>
+    <form name="contact" method="POST" action="thanks.html" data-netlify="true" netlify-honeypot="bot-field" style="margin-top:2.5rem;max-width:620px;">
+      <input type="hidden" name="form-name" value="contact"/>
+      <p style="display:none;"><label>Leave this empty: <input name="bot-field"/></label></p>
+      <p class="label-tag">Send a message</p>
+      <div class="form-field"><label for="c-name">Your name</label><input id="c-name" name="name" type="text" required autocomplete="name"/></div>
+      <div class="form-field"><label for="c-email">Email</label><input id="c-email" name="email" type="email" required autocomplete="email"/></div>
+      <div class="form-field"><label for="c-phone">Phone (optional)</label><input id="c-phone" name="phone" type="tel" autocomplete="tel"/></div>
+      <div class="form-field"><label for="c-topic">I am contacting you about</label><select id="c-topic" name="topic"><option>Donating a vehicle</option><option>Applying for a vehicle</option><option>Repair assistance</option><option>Sponsorship or partnership</option><option>Media</option><option>Something else</option></select></div>
+      <div class="form-field"><label for="c-msg">Message</label><textarea id="c-msg" name="message" required></textarea></div>
+      <button type="submit" class="btn-primary">Send Message</button>
+    </form>
     </div>
 </section>
 <footer>
@@ -99,8 +120,7 @@
       <ul class="footer-links">
         <li><a href="donate.html">Donate a Vehicle</a></li>
         <li><a href="portal.html">Apply for a Vehicle</a></li>
-        <li><a href="portal.html#repair">Apply for Repair Help</a></li>
-        <li><a href="testimonials.html">Testimonials</a></li>
+        <li><a href="repair.html">Repair Help</a></li>
         <li><a href="sponsors.html">Become a Sponsor</a></li>
       </ul>
     </div>

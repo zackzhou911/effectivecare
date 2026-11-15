@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="description" content="Donate a car, truck, SUV, or van in Metro Vancouver. Running or not, we inspect it and place it with a family who needs it."/>
 <title>Donate a Vehicle | Effective Care</title>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Effective Care Society"/>
+<meta property="og:title" content="Donate a Vehicle | Effective Care"/>
+<meta property="og:description" content="Donate a car, truck, SUV, or van in Metro Vancouver. Running or not, we inspect it and place it with a family who needs it."/>
+<meta property="og:url" content="https://effectivecare.ca/donate.html"/>
+<meta property="og:image" content="https://effectivecare.ca/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://effectivecare.ca/og-image.png"/>
 <link rel="icon" type="image/png" href="favicon.png"/>
 <link rel="stylesheet" href="style.css"/>
 <script defer data-domain="effectivecare.ca" src="https://plausible.io/js/script.js"></script>
@@ -25,7 +35,7 @@
       </div>
     </div>
     <a href="how-it-works.html" class="">How It Works</a>
-    <a href="testimonials.html" class="">Testimonials</a>
+    <a href="repair.html" class="">Repair Help</a>
     <a href="faq.html" class="">FAQ</a>
     <a href="contact.html" class="">Contact</a>
     <a href="sponsors.html" class="">Sponsors</a>
@@ -46,7 +56,7 @@
   <a href="for-recipients.html">For Recipients</a>
   <a href="who-we-serve.html">Who We Serve</a>
   <a href="how-it-works.html">How It Works</a>
-  <a href="testimonials.html">Testimonials</a>
+  <a href="repair.html">Repair Help</a>
   <a href="faq.html">FAQ</a>
   <a href="contact.html">Contact</a>
   <a href="sponsors.html">Sponsors</a>
@@ -83,7 +93,21 @@
       <div class="journey-step"><div class="j-num">03</div><div><h4 class="j-title">Drop off and we handle the rest</h4><p class="j-desc">We complete the ICBC ownership transfer on site. Effective Care Society is not yet a registered charity and cannot issue official donation receipts. If our CRA registration is approved, receipts may be available for eligible gifts made after that date. We take it from there.</p></div></div>
       <div class="journey-step"><div class="j-num">04</div><div><h4 class="j-title">Stay connected</h4><p class="j-desc">Once your vehicle is placed, your "See Your Car" dashboard activates. With the family's consent, you receive anonymized updates showing how your car is still moving someone forward.</p></div></div>
     </div>
-    <div class="cta-row"><a href="mailto:info@effectivecare.ca" class="btn-primary">Email to Arrange Drop-off</a><a href="faq.html" class="btn-secondary">Read the FAQ</a></div>
+    
+    <form name="vehicle-donation" method="POST" action="thanks.html" data-netlify="true" netlify-honeypot="bot-field" style="margin-top:2rem;max-width:620px;">
+      <input type="hidden" name="form-name" value="vehicle-donation"/>
+      <p style="display:none;"><label>Leave this empty: <input name="bot-field"/></label></p>
+      <p class="label-tag">Tell us about your vehicle</p>
+      <p class="body" style="margin-bottom:1.25rem;">Fill this in and we will email or call you within a few business days to arrange a drop-off. No commitment until you hand over the keys.</p>
+      <div class="form-field"><label for="d-name">Your name</label><input id="d-name" name="name" type="text" required autocomplete="name"/></div>
+      <div class="form-field"><label for="d-email">Email</label><input id="d-email" name="email" type="email" required autocomplete="email"/></div>
+      <div class="form-field"><label for="d-phone">Phone</label><input id="d-phone" name="phone" type="tel" required autocomplete="tel"/></div>
+      <div class="form-field"><label for="d-vehicle">Vehicle (year, make, model)</label><input id="d-vehicle" name="vehicle" type="text" placeholder="e.g. 2011 Toyota Corolla" required/></div>
+      <div class="form-field"><label for="d-running">Does it run?</label><select id="d-running" name="running"><option>Yes, it drives</option><option>Runs, but has problems</option><option>No, it needs a tow</option></select></div>
+      <div class="form-field"><label for="d-notes">Anything else we should know? (optional)</label><textarea id="d-notes" name="notes" style="min-height:90px;"></textarea></div>
+      <button type="submit" class="btn-primary">Send Vehicle Details</button>
+    </form>
+    <p class="body" style="margin-top:1.5rem;font-size:0.9rem;">Prefer email? <a href="mailto:info@effectivecare.ca" class="link-inline">info@effectivecare.ca</a> &nbsp;&middot;&nbsp; <a href="faq.html" class="link-inline">Read the FAQ</a></p>
     <p class="body" style="margin-top:1rem;font-size:0.9rem;">Already donated? <a href="portal.html" class="link-inline">Sign in</a> to track your vehicle.</p>
   </div>
 </section>
@@ -123,8 +147,7 @@
       <ul class="footer-links">
         <li><a href="donate.html">Donate a Vehicle</a></li>
         <li><a href="portal.html">Apply for a Vehicle</a></li>
-        <li><a href="portal.html#repair">Apply for Repair Help</a></li>
-        <li><a href="testimonials.html">Testimonials</a></li>
+        <li><a href="repair.html">Repair Help</a></li>
         <li><a href="sponsors.html">Become a Sponsor</a></li>
       </ul>
     </div>
